@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installer Builder</title>
+<style>
+:root {
+  --bg-color: #1a1a1e;
+  --panel-bg: #222226;
+  --card-bg: #2a2a2e;
+  --border-color: #3a3a3e;
+  --primary-color: #4a9eff;
+  --primary-hover: #6ab0ff;
+  --text-color: #e0e0e0;
+  --muted-text: #888888;
+  --danger-color: #ff4a4a;
+  --success-color: #4aff4a;
+  --warning-color: #ffaa4a;
+  --radius: 4px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  --transition: 0.15s ease;
+  --nav-width: 200px;
+  --statusbar-height: 32px;
+  --header-height: 40px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Header */
+.header {
+  height: var(--header-height);
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  -webkit-app-region: drag;
+}
+
+.header-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+/* Layout */
+.main-layout {
+  display: flex;
+  height: calc(100vh - var(--header-height) - var(--statusbar-height));
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--nav-width);
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-section {
+  padding: 8px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  color: var(--muted-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-item:hover {
+  background: var(--card-bg);
+}
+
+.nav-item.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.nav-item .icon {
+  width: 16px;
+  text-align: center;
+}
+
+.nav-item .badge {
+  margin-left: auto;
+  background: var(--primary-color);
+  color: white;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* Project List */
+.project-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px;
+}
+
+.project-item {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: var(--transition);
+}
+
+.project-item:hover {
+  background: var(--card-bg);
+}
+
+.project-item.active {
+  background: var(--card-bg);
+  border-left: 2px solid var(--primary-color);
+}
+
+.project-item-name {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.project-item-meta {
+  font-size: 11px;
+  color: var(--muted-text);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.content-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Form */
+.form-section {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.form-section-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-section-body {
+  padding: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group.tight {
+  flex: 0 0 auto;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--muted-text);
+}
+
+.form-input {
+  width: 100%;
+  height: 32px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 0 10px;
+  color: var(--text-color);
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form-input::placeholder {
+  color: var(--muted-text);
+}
+
+.form-input-group {
+  display: flex;
+}
+
+.form-input-group .form-input {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.form-input-group .btn-browse {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  border-left: none;
+}
+
+/* Checkbox */
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  height: 32px;
+}
+
+.form-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+}
+
+/* Buttons */
+.btn {
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  background: var(--border-color);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff6a6a;
+}
+
+.btn-icon {
+  width: 32px;
+  padding: 0;
+}
+
+.btn-sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+/* Status Bar */
+.statusbar {
+  height: var(--statusbar-height);
+  background: var(--panel-bg);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--muted-text);
+}
+
+.statusbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success-color);
+}
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 48px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.success .toast-icon { color: var(--success-color); }
+.toast.error .toast-icon { color: var(--danger-color); }
+.toast.warning .toast-icon { color: var(--warning-color); }
+
+.toast-message {
+  flex: 1;
+}
+
+.toast-close {
+  cursor: pointer;
+  color: var(--muted-text);
+}
+
+.toast-close:hover {
+  color: var(--text-color);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.modal {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 400px;
+  max-width: 90vw;
+}
+
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-close {
+  cursor: pointer;
+  color: var(--muted-text);
+  font-size: 20px;
+}
+
+.modal-close:hover {
+  color: var(--text-color);
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Build Log */
+.build-log {
+  background: #0d0d0d;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.log-line {
+  margin-bottom: 2px;
+}
+
+.log-line.info { color: var(--muted-text); }
+.log-line.success { color: var(--success-color); }
+.log-line.error { color: var(--danger-color); }
+.log-line.warn { color: var(--warning-color); }
+
+.log-timestamp {
+  color: var(--muted-text);
+  margin-right: 8px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted-text);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.empty-desc {
+  margin-bottom: 16px;
+}
+
+/* File List */
+.file-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-item:hover {
+  background: var(--card-bg);
+}
+
+.file-icon {
+  margin-right: 8px;
+  color: var(--muted-text);
+}
+
+.file-name {
+  flex: 1;
+}
+
+.file-size {
+  color: var(--muted-text);
+  font-size: 12px;
+}
+
+/* Progress */
+.progress-bar {
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 4px 0;
+  z-index: 1002;
+  min-width: 160px;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.context-menu-item:hover {
+  background: var(--card-bg);
+}
+
+.context-menu-item.danger {
+  color: var(--danger-color);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+/* Hidden */
+.hidden {
+  display: none !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-text);
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<div class="header">
+  <div class="header-title">Installer Builder</div>
+  <div class="header-actions">
+    <button class="btn btn-sm" onclick="showNewProjectModal()">
+      <span class="icon">+</span> New Project
+    </button>
+    <button class="btn btn-sm" onclick="openProjectList()">
+      <span class="icon">📂</span> Open
+    </button>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="main-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="nav-section">
+      <div class="nav-item active" data-view="config" onclick="switchView('config')">
+        <span class="icon">⚙</span>
+        <span>Configuration</span>
+      </div>
+      <div class="nav-item" data-view="files" onclick="switchView('files')">
+        <span class="icon">📁</span>
+        <span>Files</span>
+        <span class="badge hidden" id="fileCount">0</span>
+      </div>
+      <div class="nav-item" data-view="build" onclick="switchView('build')">
+        <span class="icon">🔨</span>
+        <span>Build</span>
+      </div>
+      <div class="nav-item" data-view="output" onclick="switchView('output')">
+        <span class="icon">📦</span>
+        <span>Output</span>
+      </div>
+    </div>
+
+    <div class="nav-section-title">Recent Projects</div>
+    <div class="project-list" id="projectList">
+      <!-- Dynamic -->
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Config View -->
+    <div id="view-config" class="view-panel">
+      <div class="content-header">
+        <div class="content-title">Installation Configuration</div>
+        <button class="btn btn-primary" onclick="saveCurrentProject()">Save</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Basic Information
+        </div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Application Name *</label>
+              <input type="text" class="form-input" id="appName" placeholder="My Application">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Version</label>
+              <input type="text" class="form-input" id="appVersion" placeholder="1.0.0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Publisher</label>
+              <input type="text" class="form-input" id="publisher" placeholder="Publisher Name">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Executable Settings
+        </div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Main Executable *</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="mainExe" placeholder="Select main executable">
+                <button class="btn btn-browse" onclick="selectMainExe()">Browse</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Install Icon (optional)</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="installIcon" placeholder=".ico file">
+                <button class="btn btn-browse" onclick="selectInstallIcon()">Browse</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Installation Paths
+        </div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Installation Directory</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="installDir" placeholder="%ProgramFiles%\AppName">
+                <button class="btn btn-browse" onclick="selectInstallDir()">Browse</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Output Directory</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="outputDir" placeholder="Where to save installer">
+                <button class="btn btn-browse" onclick="selectOutputDir()">Browse</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Shortcuts
+        </div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <label class="form-checkbox">
+              <input type="checkbox" id="desktopShortcut" checked>
+              <span>Create Desktop Shortcut</span>
+            </label>
+          </div>
+          <div class="form-row">
+            <label class="form-checkbox">
+              <input type="checkbox" id="startMenuShortcut" checked>
+              <span>Create Start Menu Shortcut</span>
+            </label>
+          </div>
+          <div class="form-row">
+            <label class="form-checkbox">
+              <input type="checkbox" id="uninstaller" checked>
+              <span>Create Uninstaller</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Files View -->
+    <div id="view-files" class="view-panel hidden">
+      <div class="content-header">
+        <div class="content-title">Source Files</div>
+        <button class="btn" onclick="selectSourceDir()">Select Directory</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Source Directory
+          <span id="sourceDirDisplay" style="color: var(--muted-text); font-weight: normal;"></span>
+        </div>
+        <div class="form-section-body">
+          <div id="filesEmpty" class="empty-state">
+            <div class="empty-icon">📁</div>
+            <div class="empty-title">No Files Selected</div>
+            <div class="empty-desc">Select a source directory to scan for files</div>
+          </div>
+          <div id="filesInfo" class="hidden">
+            <div style="margin-bottom: 12px; display: flex; gap: 24px;">
+              <span>Total: <strong id="totalFiles">0</strong> files</span>
+              <span>Size: <strong id="totalSize">0 KB</strong></span>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Build View -->
+    <div id="view-build" class="view-panel hidden">
+      <div class="content-header">
+        <div class="content-title">Build Installer</div>
+        <button class="btn btn-primary" onclick="startBuild()" id="buildBtn">Build Installer</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Build Log
+        </div>
+        <div class="form-section-body">
+          <div class="build-log" id="buildLog">
+            <div class="log-line info">
+              <span class="log-timestamp">[--:--:--]</span>
+              Ready to build
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Build Progress
+        </div>
+        <div class="form-section-body">
+          <div class="progress-bar">
+            <div class="progress-fill" id="buildProgress" style="width: 0%"></div>
+          </div>
+          <div style="margin-top: 8px; color: var(--muted-text);" id="buildStatus">Not started</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output View -->
+    <div id="view-output" class="view-panel hidden">
+      <div class="content-header">
+        <div class="content-title">Output</div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">
+          Generated Installers
+        </div>
+        <div class="form-section-body">
+          <div id="outputEmpty" class="empty-state">
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">No Output Yet</div>
+            <div class="empty-desc">Build an installer to see output here</div>
+          </div>
+          <div id="outputList" class="hidden">
+            <!-- Dynamic -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="statusbar">
+  <div class="statusbar-left">
+    <div class="status-item">
+      <span class="status-dot"></span>
+      <span id="statusText">Ready</span>
+    </div>
+    <div class="status-item" id="currentProjectName" style="color: var(--text-color);"></div>
+  </div>
+  <div class="statusbar-right">
+    <div class="status-item">v1.0.0</div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modal Container -->
+<div id="modalContainer"></div>
+
+<!-- Context Menu -->
+<div class="context-menu hidden" id="contextMenu"></div>
+
+<script>
+// === State ===
+const state = {
+  currentProject: null,
+  projects: [],
+  currentView: 'config',
+  buildRunning: false
+};
+
+// === API Helper ===
+const API = {
+  _ready: false,
+  _queue: [],
+
+  async _wait() {
+    if (typeof pywebview !== 'undefined' && pywebview.api) {
+      this._ready = true;
+      return true;
+    }
+    return new Promise(resolve => {
+      const check = () => {
+        if (typeof pywebview !== 'undefined' && pywebview.api) {
+          this._ready = true;
+          resolve(true);
+        } else {
+          setTimeout(check, 50);
+        }
+      };
+      check();
+    });
+  },
+
+  async call(method, ...args) {
+    await this._wait();
+    try {
+      const fn = pywebview.api[method];
+      if (!fn) throw new Error(`API method not found: ${method}`);
+      const result = await fn(...args);
+      if (!result.success) {
+        throw new Error(result.message || 'Unknown error');
+      }
+      return result.data;
+    } catch (e) {
+      console.error(`API Error [${method}]:`, e);
+      throw e;
+    }
+  }
+};
+
+// === Toast ===
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type]}</span>
+    <span class="toast-message">${message}</span>
+    <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+  `;
+
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// === Modal ===
+function showModal(title, bodyHTML, footerHTML = '', onInit = null) {
+  const container = document.getElementById('modalContainer');
+  container.innerHTML = `
+    <div class="modal-overlay" onclick="closeModal(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <span class="modal-title">${title}</span>
+          <span class="modal-close" onclick="closeModal()">×</span>
+        </div>
+        <div class="modal-body">${bodyHTML}</div>
+        ${footerHTML ? `<div class="modal-footer">${footerHTML}</div>` : ''}
+      </div>
+    </div>
+  `;
+
+  if (onInit) {
+    setTimeout(onInit, 50);
+  }
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modalContainer').innerHTML = '';
+}
+
+// === Context Menu ===
+function showContextMenu(x, y, items) {
+  const menu = document.getElementById('contextMenu');
+  menu.innerHTML = items.map(item => {
+    if (item.divider) return '<div class="context-menu-divider"></div>';
+    return `<div class="context-menu-item${item.danger ? ' danger' : ''}" onclick="${item.action}">${item.icon || ''} ${item.label}</div>`;
+  }).join('');
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  menu.classList.remove('hidden');
+}
+
+function hideContextMenu() {
+  document.getElementById('contextMenu').classList.add('hidden');
+}
+
+document.addEventListener('click', hideContextMenu);
+document.addEventListener('contextmenu', (e) => {
+  if (!e.target.closest('.project-item, .file-item')) {
+    hideContextMenu();
+  }
+});
+
+// === View Switching ===
+function switchView(view) {
+  state.currentView = view;
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === view);
+  });
+
+  document.querySelectorAll('.view-panel').forEach(panel => {
+    panel.classList.add('hidden');
+  });
+  document.getElementById(`view-${view}`).classList.remove('hidden');
+
+  if (view === 'output') {
+    loadOutputs();
+  }
+}
+
+// === Project Management ===
+async function loadProjects() {
+  try {
+    state.projects = await API.call('list_projects');
+    renderProjectList();
+  } catch (e) {
+    console.error('Failed to load projects:', e);
+  }
+}
+
+function renderProjectList() {
+  const list = document.getElementById('projectList');
+
+  if (state.projects.length === 0) {
+    list.innerHTML = '<div style="padding: 12px; color: var(--muted-text); text-align: center; font-size: 12px;">No projects</div>';
+    return;
+  }
+
+  list.innerHTML = state.projects.map(p => `
+    <div class="project-item${state.currentProject?.id === p.id ? ' active' : ''}"
+         onclick="loadProject('${p.id}')"
+         oncontextmenu="showProjectContextMenu(event, '${p.id}')">
+      <div class="project-item-name">${escapeHtml(p.name)}</div>
+      <div class="project-item-meta">${formatDate(p.modified)}</div>
+    </div>
+  `).join('');
+}
+
+async function loadProject(id) {
+  try {
+    const project = await API.call('load_project', id);
+    state.currentProject = project;
+    populateForm(project);
+    renderProjectList();
+    updateStatus(project.name);
+    switchView('config');
+    showToast(`Loaded: ${project.name}`, 'success');
+  } catch (e) {
+    showToast('Failed to load project', 'error');
+  }
+}
+
+function populateForm(project) {
+  const cfg = project.config || {};
+  document.getElementById('appName').value = cfg.app_name || '';
+  document.getElementById('appVersion').value = cfg.app_version || '';
+  document.getElementById('publisher').value = cfg.publisher || '';
+  document.getElementById('mainExe').value = cfg.main_exe || '';
+  document.getElementById('installDir').value = cfg.install_dir || '';
+  document.getElementById('outputDir').value = cfg.output_dir || '';
+  document.getElementById('installIcon').value = cfg.install_icon || '';
+  document.getElementById('desktopShortcut').checked = cfg.desktop_shortcut !== false;
+  document.getElementById('startMenuShortcut').checked = cfg.start_menu_shortcut !== false;
+  document.getElementById('uninstaller').checked = cfg.uninstaller !== false;
+}
+
+function collectFormData() {
+  return {
+    app_name: document.getElementById('appName').value,
+    app_version: document.getElementById('appVersion').value,
+    publisher: document.getElementById('publisher').value,
+    main_exe: document.getElementById('mainExe').value,
+    install_dir: document.getElementById('installDir').value,
+    output_dir: document.getElementById('outputDir').value,
+    install_icon: document.getElementById('installIcon').value,
+    desktop_shortcut: document.getElementById('desktopShortcut').checked,
+    start_menu_shortcut: document.getElementById('startMenuShortcut').checked,
+    uninstaller: document.getElementById('uninstaller').checked,
+  };
+}
+
+async function saveCurrentProject() {
+  if (!state.currentProject) {
+    showToast('No project loaded', 'warning');
+    return;
+  }
+
+  state.currentProject.config = { ...state.currentProject.config, ...collectFormData() };
+
+  try {
+    await API.call('save_project', JSON.stringify(state.currentProject));
+    showToast('Project saved', 'success');
+    renderProjectList();
+  } catch (e) {
+    showToast('Failed to save', 'error');
+  }
+}
+
+function showNewProjectModal() {
+  showModal('New Project',
+    `<div class="form-group">
+      <label class="form-label">Project Name</label>
+      <input type="text" class="form-input" id="newProjectName" placeholder="My Installer">
+    </div>`,
+    `<button class="btn" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" onclick="createNewProject()">Create</button>`,
+    () => {
+      const input = document.getElementById('newProjectName');
+      input.focus();
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') createNewProject();
+        if (e.key === 'Escape') closeModal();
+      });
+    }
+  );
+}
+
+async function createNewProject() {
+  const name = document.getElementById('newProjectName').value.trim();
+  if (!name) {
+    showToast('Please enter a name', 'warning');
+    return;
+  }
+
+  try {
+    const project = await API.call('create_project', name);
+    state.currentProject = project;
+    populateForm(project);
+    await loadProjects();
+    updateStatus(project.name);
+    closeModal();
+    switchView('config');
+    showToast(`Created: ${name}`, 'success');
+  } catch (e) {
+    showToast('Failed to create project', 'error');
+  }
+}
+
+function showProjectContextMenu(e, id) {
+  e.preventDefault();
+  showContextMenu(e.clientX, e.clientY, [
+    { label: 'Open', icon: '📂', action: `loadProject('${id}')` },
+    { label: 'Delete', icon: '🗑', action: `deleteProject('${id}')`, danger: true },
+  ]);
+}
+
+async function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+
+  try {
+    await API.call('delete_project', id);
+    if (state.currentProject?.id === id) {
+      state.currentProject = null;
+      updateStatus('');
+    }
+    await loadProjects();
+    showToast('Project deleted', 'success');
+  } catch (e) {
+    showToast('Failed to delete', 'error');
+  }
+}
+
+function openProjectList() {
+  loadProjects();
+}
+
+// === File Selection ===
+async function selectMainExe() {
+  try {
+    const result = await API.call('select_file', 'Executable (*.exe)');
+    if (result?.path) {
+      document.getElementById('mainExe').value = result.path;
+    }
+  } catch (e) {
+    showToast('Failed to select file', 'error');
+  }
+}
+
+async function selectInstallIcon() {
+  try {
+    const result = await API.call('select_file', 'Icon (*.ico)');
+    if (result?.path) {
+      document.getElementById('installIcon').value = result.path;
+    }
+  } catch (e) {
+    showToast('Failed to select file', 'error');
+  }
+}
+
+async function selectInstallDir() {
+  try {
+    const result = await API.call('select_folder');
+    if (result?.path) {
+      document.getElementById('installDir').value = result.path;
+    }
+  } catch (e) {
+    showToast('Failed to select folder', 'error');
+  }
+}
+
+async function selectOutputDir() {
+  try {
+    const result = await API.call('select_folder');
+    if (result?.path) {
+      document.getElementById('outputDir').value = result.path;
+    }
+  } catch (e) {
+    showToast('Failed to select folder', 'error');
+  }
+}
+
+async function selectSourceDir() {
+  try {
+    const result = await API.call('select_folder');
+    if (result?.path) {
+      await scanSourceDir(result.path);
+    }
+  } catch (e) {
+    showToast('Failed to select folder', 'error');
+  }
+}
+
+async function scanSourceDir(path) {
+  try {
+    const data = await API.call('scan_directory', path);
+    renderFileList(data);
+    document.getElementById('sourceDirDisplay').textContent = path;
+
+    if (data.exe_files?.length > 0 && !document.getElementById('mainExe').value) {
+      document.getElementById('mainExe').value = path + '\\' + data.exe_files[0];
+    }
+  } catch (e) {
+    showToast('Failed to scan directory', 'error');
+  }
+}
+
+function renderFileList(data) {
+  const empty = document.getElementById('filesEmpty');
+  const info = document.getElementById('filesInfo');
+  const list = document.getElementById('fileList');
+  const countBadge = document.getElementById('fileCount');
+
+  if (!data.files?.length) {
+    empty.classList.remove('hidden');
+    info.classList.add('hidden');
+    countBadge.classList.add('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  info.classList.remove('hidden');
+  countBadge.classList.remove('hidden');
+
+  document.getElementById('totalFiles').textContent = data.file_count;
+  document.getElementById('totalSize').textContent = data.total_size_formatted;
+  countBadge.textContent = data.file_count;
+
+  const displayFiles = data.files.slice(0, 100);
+  list.innerHTML = displayFiles.map(f => `
+    <div class="file-item">
+      <span class="file-icon">📄</span>
+      <span class="file-name">${escapeHtml(f.path)}</span>
+      <span class="file-size">${f.size_formatted}</span>
+    </div>
+  `).join('');
+
+  if (data.files.length > 100) {
+    list.innerHTML += `<div class="file-item" style="color: var(--muted-text); justify-content: center;">... and ${data.files.length - 100} more files</div>`;
+  }
+}
+
+// === Build ===
+async function startBuild() {
+  if (!state.currentProject) {
+    showToast('Please open a project first', 'warning');
+    return;
+  }
+
+  state.currentProject.config = { ...state.currentProject.config, ...collectFormData() };
+
+  const validation = await API.call('validate_project', JSON.stringify(state.currentProject));
+  if (!validation.valid) {
+    showToast(validation.errors[0], 'error');
+    return;
+  }
+
+  if (validation.warnings.length) {
+    showToast(validation.warnings[0], 'warning');
+  }
+
+  state.buildRunning = true;
+  document.getElementById('buildBtn').disabled = true;
+  document.getElementById('buildProgress').style.width = '0%';
+  document.getElementById('buildStatus').textContent = 'Building...';
+
+  const log = document.getElementById('buildLog');
+  log.innerHTML = '';
+
+  const steps = [
+    'Validating configuration...',
+    'Scanning source files...',
+    'Creating build manifest...',
+    'Generating installer script...',
+    'Compiling installer...',
+    'Writing output file...',
+  ];
+
+  for (let i = 0; i < steps.length; i++) {
+    await delay(400 + Math.random() * 300);
+    addLogLine(steps[i], 'info');
+    document.getElementById('buildProgress').style.width = ((i + 1) / steps.length * 100) + '%';
+  }
+
+  try {
+    const result = await API.call('build_installer', JSON.stringify(state.currentProject));
+    addLogLine('Build completed!', 'success');
+    document.getElementById('buildStatus').textContent = 'Completed';
+    showToast('Build successful', 'success');
+
+    state.currentProject.build_log = result.log || [];
+    await API.call('save_project', JSON.stringify(state.currentProject));
+  } catch (e) {
+    addLogLine('Build failed: ' + e.message, 'error');
+    document.getElementById('buildStatus').textContent = 'Failed';
+    showToast('Build failed', 'error');
+  }
+
+  state.buildRunning = false;
+  document.getElementById('buildBtn').disabled = false;
+}
+
+function addLogLine(text, type = 'info') {
+  const log = document.getElementById('buildLog');
+  const time = new Date().toTimeString().slice(0, 8);
+  log.innerHTML += `<div class="log-line ${type}"><span class="log-timestamp">[${time}]</span>${escapeHtml(text)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+// === Output ===
+async function loadOutputs() {
+  try {
+    const outputs = await API.call('list_outputs');
+    renderOutputList(outputs);
+  } catch (e) {
+    console.error('Failed to load outputs:', e);
+  }
+}
+
+function renderOutputList(outputs) {
+  const empty = document.getElementById('outputEmpty');
+  const list = document.getElementById('outputList');
+
+  if (!outputs?.length) {
+    empty.classList.remove('hidden');
+    list.classList.add('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  list.classList.remove('hidden');
+
+  list.innerHTML = outputs.map(o => `
+    <div class="file-item">
+      <span class="file-icon">📦</span>
+      <span class="file-name">${escapeHtml(o.name)}</span>
+      <span class="file-size">${o.size_formatted}</span>
+      <span class="file-size">${formatDate(o.modified)}</span>
+    </div>
+  `).join('');
+}
+
+// === Utilities ===
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString().slice(0, 5);
+}
+
+function updateStatus(name) {
+  document.getElementById('currentProjectName').textContent = name ? `Project: ${name}` : '';
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// === Keyboard ===
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    hideContextMenu();
+  }
+
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+    saveCurrentProject();
+  }
+
+  if (e.ctrlKey && e.key === 'b') {
+    e.preventDefault();
+    if (state.currentView === 'build') {
+      startBuild();
+    }
+  }
+});
+
+// === Init ===
+window.addEventListener('pywebviewready', () => {
+  loadProjects();
+});
+
+setTimeout(() => {
+  if (typeof pywebview !== 'undefined') {
+    loadProjects();
+  }
+}, 100);
+</script>
+</body>
+</html>
