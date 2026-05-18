@@ -1,12 +1,10 @@
 """
 Installer Builder - Core 业务逻辑
-整合项目管理器、版本管理器和构建系统
+整合项目管理、版本管理和构建系统
 """
-import json
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 
 from project_manager import ProjectManager
 from version_manager import VersionManager
@@ -14,69 +12,72 @@ from build_system import Builder
 
 
 class Core:
-    """核心业务逻辑"""
+    """核心业务逻辑。"""
 
     def __init__(self):
         self.project_manager = ProjectManager()
-        self.version_manager = VersionManager()
         self.builder = Builder(str(self.project_manager.base_dir / "output"))
         self.current_project: Optional[dict] = None
 
     # === 项目管理 ===
 
     def create_project(self, name: str, path: Optional[str] = None) -> dict:
-        """创建新项目"""
         project = self.project_manager.create_project(name, path)
         self.current_project = project
         return project
 
+    def _normalize_current_project(self):
+        if self.current_project:
+            path = self.current_project.get("path") or self.current_project.get("projectPath")
+            if path:
+                self.current_project = self.project_manager._normalize_project(
+                    self.current_project, path=Path(path)
+                )
+            else:
+                self.current_project = self.project_manager._normalize_project(self.current_project)
+
     def save_project(self, project: Optional[dict] = None) -> bool:
-        """保存项目"""
         if project is None:
             project = self.current_project
         if not project:
             return False
-        return self.project_manager.save_project(project)
+        self.current_project = project
+        self._normalize_current_project()
+        return self.project_manager.save_project(self.current_project)
 
     def save_project_as(self, new_path: str) -> dict:
-        """另存为"""
         if not self.current_project:
             raise ValueError("没有当前项目")
-        self.current_project = self.project_manager.save_project_as(
-            self.current_project, new_path
-        )
+        self._normalize_current_project()
+        self.current_project = self.project_manager.save_project_as(self.current_project, new_path)
         return self.current_project
 
     def load_project(self, path: str) -> Optional[dict]:
-        """加载项目"""
         project = self.project_manager.load_project(path)
         if project:
             self.current_project = project
         return project
 
     def load_project_by_id(self, project_id: str) -> Optional[dict]:
-        """通过 ID 加载项目"""
         project = self.project_manager.load_project_by_id(project_id)
         if project:
             self.current_project = project
         return project
 
     def list_projects(self) -> List[dict]:
-        """列出项目"""
         return self.project_manager.list_projects()
 
     def get_recent_projects(self) -> List[dict]:
-        """获取最近项目"""
         return self.project_manager.get_recent_projects()
 
     def delete_project(self, path: str) -> bool:
-        """删除项目"""
-        if self.current_project and self.current_project.get("path") == path:
-            self.current_project = None
+        if self.current_project:
+            current_path = self.current_project.get("path") or self.current_project.get("projectPath")
+            if current_path and Path(current_path) == Path(path):
+                self.current_project = None
         return self.project_manager.delete_project(path)
 
     def close_project(self):
-        """关闭当前项目"""
         if self.current_project:
             self.save_project()
         self.current_project = None
@@ -84,75 +85,94 @@ class Core:
     # === 版本管理 ===
 
     def get_version_info(self) -> dict:
-        """获取当前版本信息"""
         if not self.current_project:
             return VersionManager.get_version_info("1.0.0")
         version = self.current_project.get("config", {}).get("app_version", "1.0.0")
         return VersionManager.get_version_info(version)
 
     def set_version(self, version: str) -> bool:
-        """设置版本号"""
         if not self.current_project:
             return False
-        if not VersionManager.validate(version):
+        normalized = VersionManager.normalize(version)
+        if not VersionManager.validate(normalized):
             return False
-        self.current_project["config"]["app_version"] = version
+        self.current_project.setdefault("config", {})["app_version"] = normalized
+        major, minor, patch = VersionManager.parse(normalized)
+        self.current_project["version"] = {"major": major, "minor": minor, "patch": patch}
+        self.current_project["versionString"] = normalized
         return True
 
-    def auto_increment_version(self) -> str:
-        """自动递增版本号"""
+    def set_auto_version_config(self, patch: bool = False, minor: bool = False, major: bool = False) -> dict:
         if not self.current_project:
-            return "1.0.0"
+            return {}
 
-        config = self.current_project.get("config", {})
+        normalized = VersionManager.normalize_auto_flags(
+            increment_patch=patch,
+            increment_minor=minor,
+            increment_major=major,
+        )
+        self.current_project["auto_version"] = dict(normalized)
+        self.current_project["autoVersion"] = {
+            "patch": normalized["increment_patch"],
+            "minor": normalized["increment_minor"],
+            "major": normalized["increment_major"],
+        }
+        self.save_project()
+        return self.current_project["auto_version"]
+
+    def get_auto_version_config(self) -> dict:
+        if not self.current_project:
+            return {"increment_patch": False, "increment_minor": False, "increment_major": False}
         auto = self.current_project.get("auto_version", {})
-        current = config.get("app_version", "1.0.0")
-
-        new_version = VersionManager.auto_increment(
-            current,
+        return VersionManager.normalize_auto_flags(
             increment_patch=auto.get("increment_patch", False),
             increment_minor=auto.get("increment_minor", False),
             increment_major=auto.get("increment_major", False),
         )
 
-        # 更新版本号
-        config["app_version"] = new_version
-
-        # 主版本或次版本递增后，重置勾选状态
-        if auto.get("increment_major") or auto.get("increment_minor"):
-            auto["increment_major"] = False
-            auto["increment_minor"] = False
-            auto["increment_patch"] = False
-
-        self.save_project()
-        return new_version
-
-    def set_auto_version_config(self, patch: bool = False,
-                                  minor: bool = False,
-                                  major: bool = False) -> dict:
-        """设置自动版本配置"""
+    def apply_version_increment_after_success(self) -> dict:
+        """
+        构建成功后推进版本号。
+        """
         if not self.current_project:
-            return {}
+            return {
+                "changed": False,
+                "old_version": "1.0.0",
+                "new_version": "1.0.0",
+                "strategy": "none",
+                "next_auto_version": {"increment_patch": False, "increment_minor": False, "increment_major": False},
+            }
 
-        # 主版本或次版本勾选时，禁用修订版本
-        if major or minor:
-            patch = False
+        config = self.current_project.setdefault("config", {})
+        current_version = VersionManager.normalize(config.get("app_version", "1.0.0"))
+        auto = self.get_auto_version_config()
+        increment_result = VersionManager.next_version_with_strategy(
+            current_version,
+            increment_patch=auto.get("increment_patch", False),
+            increment_minor=auto.get("increment_minor", False),
+            increment_major=auto.get("increment_major", False),
+        )
 
-        self.current_project["auto_version"] = {
-            "increment_patch": patch,
-            "increment_minor": minor,
-            "increment_major": major,
+        config["app_version"] = increment_result["new_version"]
+        next_auto = increment_result["next_auto_version"]
+        self.current_project["auto_version"] = dict(next_auto)
+        self.current_project["autoVersion"] = {
+            "patch": next_auto["increment_patch"],
+            "minor": next_auto["increment_minor"],
+            "major": next_auto["increment_major"],
         }
+        major, minor, patch = VersionManager.parse(increment_result["new_version"])
+        self.current_project["version"] = {"major": major, "minor": minor, "patch": patch}
+        self.current_project["versionString"] = increment_result["new_version"]
         self.save_project()
-        return self.current_project["auto_version"]
+        return increment_result
 
     # === 文件操作 ===
 
     def scan_directory(self, directory: str) -> dict:
-        """扫描目录"""
         dir_path = Path(directory)
         if not dir_path.exists():
-            return {"files": [], "total_size": 0, "exe_files": []}
+            return {"files": [], "total_size": 0, "exe_files": [], "file_count": 0}
 
         files = []
         total_size = 0
@@ -163,18 +183,26 @@ class Core:
                 size = f.stat().st_size
                 total_size += size
                 rel_path = f.relative_to(dir_path)
-                files.append({
-                    "path": str(rel_path),
-                    "size": size,
-                    "size_formatted": self._format_size(size),
-                })
+                suffix = f.suffix.lower().lstrip(".")
+                files.append(
+                    {
+                        "name": f.name,
+                        "path": str(rel_path),
+                        "relative_path": str(rel_path),
+                        "size": size,
+                        "size_formatted": self._format_size(size),
+                        "type": suffix or "文件",
+                    }
+                )
                 if f.suffix.lower() == ".exe":
                     exe_files.append(str(rel_path))
 
-        # 更新当前项目的源目录
+        files.sort(key=lambda item: item["path"].lower())
+
         if self.current_project:
-            self.current_project["config"]["source_dir"] = directory
+            self.current_project.setdefault("config", {})["source_dir"] = str(dir_path)
             self.current_project["files"] = files
+            self.current_project.setdefault("paths", {})["sourceDir"] = str(dir_path)
 
         return {
             "files": files,
@@ -182,18 +210,18 @@ class Core:
             "total_size_formatted": self._format_size(total_size),
             "exe_files": exe_files,
             "file_count": len(files),
+            "source_dir": str(dir_path),
         }
 
     def _format_size(self, size: int) -> str:
-        """格式化文件大小"""
+        value = float(size)
         for unit in ["B", "KB", "MB", "GB"]:
-            if size < 1024:
-                return f"{size:.1f} {unit}"
-            size /= 1024
-        return f"{size:.1f} TB"
+            if value < 1024:
+                return f"{value:.1f} {unit}"
+            value /= 1024
+        return f"{value:.1f} TB"
 
     def get_file_info(self, file_path: str) -> dict:
-        """获取文件信息"""
         path = Path(file_path)
         if not path.exists():
             return {"exists": False}
@@ -211,76 +239,111 @@ class Core:
     # === 构建 ===
 
     def build(self, on_log=None, on_progress=None) -> dict:
-        """执行构建"""
         if not self.current_project:
             return {"success": False, "error": "没有当前项目"}
 
-        # 设置回调
         self.builder.on_log = on_log
         self.builder.on_progress = on_progress
 
-        # 执行构建
         result = self.builder.build(self.current_project)
+        if not result.get("success"):
+            result["version_increment"] = {
+                "changed": False,
+                "old_version": self.current_project.get("config", {}).get("app_version", "1.0.0"),
+                "new_version": self.current_project.get("config", {}).get("app_version", "1.0.0"),
+                "strategy": "none",
+            }
+            return result
 
-        if result["success"]:
-            # 自动递增版本号
-            self.auto_increment_version()
+        increment_result = self.apply_version_increment_after_success()
+        build_info = self.current_project.setdefault("build", {})
+        build_info["count"] = int(build_info.get("count") or 0) + 1
+        build_info["lastBuildAt"] = datetime.now().isoformat()
+        build_info["simulated"] = True
+        self.current_project["build_count"] = build_info["count"]
+        self.current_project["last_build"] = build_info["lastBuildAt"]
+        self.save_project()
 
-            # 更新构建计数
-            self.current_project["build_count"] = \
-                self.current_project.get("build_count", 0) + 1
-            self.current_project["last_build"] = datetime.now().isoformat()
-            self.save_project()
-
+        result["version_increment"] = increment_result
+        result["build_mode"] = "simulated"
+        result["message"] = "当前为模拟构建流程，后续将接入真实安装包生成引擎。"
         return result
 
     def validate_project(self, project: Optional[dict] = None) -> dict:
-        """验证项目配置"""
-        if project is None:
-            project = self.current_project
-        if not project:
-            return {"valid": False, "errors": ["没有项目"], "warnings": []}
+        target = project or self.current_project
+        if not target:
+            return {"valid": False, "errors": ["没有项目"], "warnings": [], "field_errors": {}}
 
-        errors = []
-        warnings = []
-        config = project.get("config", {})
+        errors: List[str] = []
+        warnings: List[str] = []
+        field_errors: Dict[str, str] = {}
 
-        if not config.get("app_name"):
-            errors.append("应用名称不能为空")
-        if not config.get("app_version"):
-            warnings.append("建议设置版本号")
-        if not config.get("main_exe"):
-            errors.append("主程序不能为空")
-        if not config.get("output_dir"):
+        config = target.get("config", {})
+        app_name = str(config.get("app_name") or "").strip()
+        main_exe = str(config.get("main_exe") or "").strip()
+        app_version = str(config.get("app_version") or "").strip()
+        output_dir = str(config.get("output_dir") or "").strip()
+
+        if not app_name:
+            msg = "应用名称不能为空"
+            errors.append(msg)
+            field_errors["appName"] = msg
+
+        if not main_exe:
+            msg = "主程序不能为空"
+            errors.append(msg)
+            field_errors["mainExe"] = msg
+
+        if not app_version:
+            msg = "版本号不能为空"
+            errors.append(msg)
+            field_errors["verMajor"] = msg
+        elif not VersionManager.validate(app_version):
+            msg = "版本号必须为 a.b.c 且为非负整数"
+            errors.append(msg)
+            field_errors["verMajor"] = msg
+
+        if not output_dir:
             warnings.append("未设置输出目录，将使用默认目录")
+
+        source_dir = str(config.get("source_dir") or "").strip()
+        if source_dir and not Path(source_dir).exists():
+            warnings.append("源文件目录不存在，请重新选择")
 
         return {
             "valid": len(errors) == 0,
             "errors": errors,
             "warnings": warnings,
+            "field_errors": field_errors,
         }
 
     # === 输出 ===
 
     def list_outputs(self) -> List[dict]:
-        """列出输出文件"""
         outputs = []
-        output_dir = Path(self.project_manager.base_dir / "output")
-        if output_dir.exists():
-            for f in output_dir.glob("*"):
-                if f.is_file() and not f.name.startswith("."):
-                    stat = f.stat()
-                    outputs.append({
-                        "name": f.name,
-                        "path": str(f),
-                        "size": stat.st_size,
-                        "size_formatted": self._format_size(stat.st_size),
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                    })
-        return sorted(outputs, key=lambda x: x["modified"], reverse=True)
+        output_dir = self.current_project.get("config", {}).get("output_dir") if self.current_project else None
+        target_dir = Path(output_dir) if output_dir else Path(self.project_manager.base_dir / "output")
+        if target_dir.exists():
+            for file_path in target_dir.glob("*"):
+                if file_path.is_file() and not file_path.name.startswith("."):
+                    stat = file_path.stat()
+                    suffix = file_path.suffix.lower()
+                    if suffix not in {".exe", ".msi", ".zip", ".json"}:
+                        continue
+                    outputs.append(
+                        {
+                            "name": file_path.name,
+                            "path": str(file_path),
+                            "size": stat.st_size,
+                            "size_formatted": self._format_size(stat.st_size),
+                            "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                            "type": suffix.lstrip("."),
+                        }
+                    )
+        outputs.sort(key=lambda item: item["modified"], reverse=True)
+        return outputs
 
     # === 配置 ===
 
     def get_config(self) -> dict:
-        """获取应用配置"""
         return self.project_manager.config
