@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installer Builder</title>
+<title>安装包生成器</title>
 <style>
 :root {
   --bg-color: #1a1a1e;
@@ -21,8 +21,8 @@
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
   --transition: 0.15s ease;
   --nav-width: 200px;
-  --statusbar-height: 32px;
-  --header-height: 40px;
+  --statusbar-height: 28px;
+  --header-height: 36px;
 }
 
 * {
@@ -32,7 +32,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
   font-size: 13px;
   background: var(--bg-color);
   color: var(--text-color);
@@ -53,13 +53,13 @@ body {
 
 .header-title {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .header-actions {
   margin-left: auto;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   -webkit-app-region: no-drag;
 }
 
@@ -79,7 +79,7 @@ body {
 }
 
 .nav-section {
-  padding: 8px;
+  padding: 6px;
 }
 
 .nav-section-title {
@@ -87,17 +87,18 @@ body {
   color: var(--muted-text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 8px 8px 4px;
+  padding: 8px 10px 4px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-radius: var(--radius);
   cursor: pointer;
   transition: var(--transition);
+  font-size: 13px;
 }
 
 .nav-item:hover {
@@ -112,26 +113,32 @@ body {
 .nav-item .icon {
   width: 16px;
   text-align: center;
+  font-size: 14px;
 }
 
 .nav-item .badge {
   margin-left: auto;
-  background: var(--primary-color);
-  color: white;
+  background: var(--border-color);
+  color: var(--muted-text);
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 10px;
+}
+
+.nav-item.active .badge {
+  background: rgba(255,255,255,0.2);
+  color: white;
 }
 
 /* Project List */
 .project-list {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 8px;
+  padding: 4px 6px;
 }
 
 .project-item {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: var(--radius);
   cursor: pointer;
   margin-bottom: 2px;
@@ -150,6 +157,7 @@ body {
 .project-item-name {
   font-weight: 500;
   margin-bottom: 2px;
+  font-size: 13px;
 }
 
 .project-item-meta {
@@ -168,11 +176,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .content-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -181,26 +189,27 @@ body {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .form-section-header {
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border-color);
   font-weight: 600;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .form-section-body {
-  padding: 16px;
+  padding: 12px 14px;
 }
 
 .form-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .form-row:last-child {
@@ -224,7 +233,7 @@ body {
 
 .form-input {
   width: 100%;
-  height: 32px;
+  height: 28px;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -254,6 +263,7 @@ body {
 .form-input-group .btn-browse {
   border-radius: 0 var(--radius) var(--radius) 0;
   border-left: none;
+  min-width: 60px;
 }
 
 /* Checkbox */
@@ -262,19 +272,61 @@ body {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  height: 32px;
+  height: 28px;
+  font-size: 13px;
 }
 
 .form-checkbox input {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   accent-color: var(--primary-color);
+}
+
+.form-checkbox.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Version Controls */
+.version-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.version-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.version-segment {
+  width: 50px;
+  text-align: center;
+}
+
+.version-dot {
+  color: var(--muted-text);
+  font-weight: bold;
+}
+
+.version-auto-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-color);
+}
+
+.version-auto-controls .form-checkbox {
+  height: auto;
+  font-size: 12px;
 }
 
 /* Buttons */
 .btn {
-  height: 32px;
-  padding: 0 16px;
+  height: 28px;
+  padding: 0 14px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   background: var(--card-bg);
@@ -307,6 +359,12 @@ body {
   border-color: var(--primary-hover);
 }
 
+.btn-primary:disabled {
+  background: var(--muted-text);
+  border-color: var(--muted-text);
+  cursor: not-allowed;
+}
+
 .btn-danger {
   background: var(--danger-color);
   border-color: var(--danger-color);
@@ -317,13 +375,8 @@ body {
   background: #ff6a6a;
 }
 
-.btn-icon {
-  width: 32px;
-  padding: 0;
-}
-
 .btn-sm {
-  height: 26px;
+  height: 24px;
   padding: 0 10px;
   font-size: 12px;
 }
@@ -360,16 +413,26 @@ body {
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--success-color);
+}
+
+.status-dot.building {
+  background: var(--warning-color);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* Toast */
 .toast-container {
   position: fixed;
-  bottom: 48px;
+  bottom: 44px;
   right: 16px;
   z-index: 1000;
   display: flex;
@@ -381,42 +444,27 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 12px 16px;
+  padding: 10px 14px;
   box-shadow: var(--shadow);
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 280px;
+  min-width: 260px;
   animation: slideIn 0.2s ease;
 }
 
 @keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .toast.success .toast-icon { color: var(--success-color); }
 .toast.error .toast-icon { color: var(--danger-color); }
 .toast.warning .toast-icon { color: var(--warning-color); }
 
-.toast-message {
-  flex: 1;
-}
-
-.toast-close {
-  cursor: pointer;
-  color: var(--muted-text);
-}
-
-.toast-close:hover {
-  color: var(--text-color);
-}
+.toast-message { flex: 1; }
+.toast-close { cursor: pointer; color: var(--muted-text); }
+.toast-close:hover { color: var(--text-color); }
 
 /* Modal */
 .modal-overlay {
@@ -434,38 +482,26 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  min-width: 400px;
+  min-width: 380px;
   max-width: 90vw;
 }
 
 .modal-header {
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.modal-title {
-  font-weight: 600;
-}
+.modal-title { font-weight: 600; }
+.modal-close { cursor: pointer; color: var(--muted-text); font-size: 18px; }
+.modal-close:hover { color: var(--text-color); }
 
-.modal-close {
-  cursor: pointer;
-  color: var(--muted-text);
-  font-size: 20px;
-}
-
-.modal-close:hover {
-  color: var(--text-color);
-}
-
-.modal-body {
-  padding: 16px;
-}
+.modal-body { padding: 16px; }
 
 .modal-footer {
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
@@ -477,86 +513,19 @@ body {
   background: #0d0d0d;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 10px;
   font-family: "Consolas", "Monaco", monospace;
   font-size: 12px;
-  max-height: 200px;
+  max-height: 180px;
   overflow-y: auto;
 }
 
-.log-line {
-  margin-bottom: 2px;
-}
-
+.log-line { margin-bottom: 2px; }
 .log-line.info { color: var(--muted-text); }
 .log-line.success { color: var(--success-color); }
 .log-line.error { color: var(--danger-color); }
 .log-line.warn { color: var(--warning-color); }
-
-.log-timestamp {
-  color: var(--muted-text);
-  margin-right: 8px;
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--muted-text);
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.empty-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-color);
-}
-
-.empty-desc {
-  margin-bottom: 16px;
-}
-
-/* File List */
-.file-list {
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.file-item:last-child {
-  border-bottom: none;
-}
-
-.file-item:hover {
-  background: var(--card-bg);
-}
-
-.file-icon {
-  margin-right: 8px;
-  color: var(--muted-text);
-}
-
-.file-name {
-  flex: 1;
-}
-
-.file-size {
-  color: var(--muted-text);
-  font-size: 12px;
-}
+.log-timestamp { color: #555; margin-right: 8px; }
 
 /* Progress */
 .progress-bar {
@@ -572,6 +541,39 @@ body {
   transition: width 0.3s ease;
 }
 
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--muted-text);
+}
+
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-color); }
+.empty-desc { margin-bottom: 12px; font-size: 13px; }
+
+/* File List */
+.file-list {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.file-item:last-child { border-bottom: none; }
+.file-item:hover { background: var(--card-bg); }
+.file-icon { margin-right: 8px; color: var(--muted-text); }
+.file-name { flex: 1; }
+.file-size { color: var(--muted-text); margin-left: 12px; }
+
 /* Context Menu */
 .context-menu {
   position: fixed;
@@ -581,67 +583,39 @@ body {
   box-shadow: var(--shadow);
   padding: 4px 0;
   z-index: 1002;
-  min-width: 160px;
+  min-width: 150px;
 }
 
 .context-menu-item {
-  padding: 8px 16px;
+  padding: 7px 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  font-size: 13px;
 }
 
-.context-menu-item:hover {
-  background: var(--card-bg);
-}
+.context-menu-item:hover { background: var(--card-bg); }
+.context-menu-item.danger { color: var(--danger-color); }
+.context-menu-divider { height: 1px; background: var(--border-color); margin: 4px 0; }
 
-.context-menu-item.danger {
-  color: var(--danger-color);
-}
-
-.context-menu-divider {
-  height: 1px;
-  background: var(--border-color);
-  margin: 4px 0;
-}
-
-/* Hidden */
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-text);
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-text); }
 </style>
 </head>
 <body>
 <!-- Header -->
 <div class="header">
-  <div class="header-title">Installer Builder</div>
+  <div class="header-title">安装包生成器</div>
   <div class="header-actions">
-    <button class="btn btn-sm" onclick="showNewProjectModal()">
-      <span class="icon">+</span> New Project
-    </button>
-    <button class="btn btn-sm" onclick="openProjectList()">
-      <span class="icon">📂</span> Open
-    </button>
+    <button class="btn btn-sm" onclick="showNewProjectModal()">+ 新建</button>
+    <button class="btn btn-sm" onclick="showOpenProjectDialog()">打开</button>
+    <button class="btn btn-sm" onclick="saveCurrentProject()">保存</button>
   </div>
 </div>
 
@@ -651,28 +625,21 @@ body {
   <div class="sidebar">
     <div class="nav-section">
       <div class="nav-item active" data-view="config" onclick="switchView('config')">
-        <span class="icon">⚙</span>
-        <span>Configuration</span>
+        <span class="icon">⚙</span><span>安装配置</span>
       </div>
       <div class="nav-item" data-view="files" onclick="switchView('files')">
-        <span class="icon">📁</span>
-        <span>Files</span>
+        <span class="icon">📁</span><span>文件</span>
         <span class="badge hidden" id="fileCount">0</span>
       </div>
       <div class="nav-item" data-view="build" onclick="switchView('build')">
-        <span class="icon">🔨</span>
-        <span>Build</span>
+        <span class="icon">🔨</span><span>构建</span>
       </div>
       <div class="nav-item" data-view="output" onclick="switchView('output')">
-        <span class="icon">📦</span>
-        <span>Output</span>
+        <span class="icon">📦</span><span>输出</span>
       </div>
     </div>
-
-    <div class="nav-section-title">Recent Projects</div>
-    <div class="project-list" id="projectList">
-      <!-- Dynamic -->
-    </div>
+    <div class="nav-section-title">最近项目</div>
+    <div class="project-list" id="projectList"></div>
   </div>
 
   <!-- Main Content -->
@@ -680,54 +647,56 @@ body {
     <!-- Config View -->
     <div id="view-config" class="view-panel">
       <div class="content-header">
-        <div class="content-title">Installation Configuration</div>
-        <button class="btn btn-primary" onclick="saveCurrentProject()">Save</button>
+        <div class="content-title">安装配置</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="saveCurrentProject()">保存项目</button>
+          <button class="btn btn-sm" onclick="showSaveAsDialog()">另存为</button>
+        </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-header">
-          Basic Information
-        </div>
+        <div class="form-section-header">基本信息</div>
         <div class="form-section-body">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Application Name *</label>
-              <input type="text" class="form-input" id="appName" placeholder="My Application">
+              <label class="form-label">应用名称 *</label>
+              <input type="text" class="form-input" id="appName" placeholder="我的应用">
             </div>
             <div class="form-group">
-              <label class="form-label">Version</label>
-              <input type="text" class="form-input" id="appVersion" placeholder="1.0.0">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Publisher</label>
-              <input type="text" class="form-input" id="publisher" placeholder="Publisher Name">
+              <label class="form-label">发布者</label>
+              <input type="text" class="form-input" id="publisher" placeholder="公司或个人名称">
             </div>
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-header">
-          Executable Settings
-        </div>
+        <div class="form-section-header">版本号</div>
         <div class="form-section-body">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Main Executable *</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="mainExe" placeholder="Select main executable">
-                <button class="btn btn-browse" onclick="selectMainExe()">Browse</button>
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Install Icon (optional)</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="installIcon" placeholder=".ico file">
-                <button class="btn btn-browse" onclick="selectInstallIcon()">Browse</button>
+              <div class="version-row">
+                <div class="version-input-group">
+                  <input type="number" class="form-input version-segment" id="verMajor" min="0" value="1">
+                  <span class="version-dot">.</span>
+                  <input type="number" class="form-input version-segment" id="verMinor" min="0" value="0">
+                  <span class="version-dot">.</span>
+                  <input type="number" class="form-input version-segment" id="verPatch" min="0" value="0">
+                </div>
+                <div class="version-auto-controls">
+                  <label class="form-checkbox">
+                    <input type="checkbox" id="autoPatch" onchange="onAutoVersionChange()">
+                    <span>构建后修订版本 +1</span>
+                  </label>
+                  <label class="form-checkbox" id="autoMinorWrap">
+                    <input type="checkbox" id="autoMinor" onchange="onAutoVersionChange()">
+                    <span>构建后次版本 +1</span>
+                  </label>
+                  <label class="form-checkbox" id="autoMajorWrap">
+                    <input type="checkbox" id="autoMajor" onchange="onAutoVersionChange()">
+                    <span>构建后主版本 +1</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -735,25 +704,23 @@ body {
       </div>
 
       <div class="form-section">
-        <div class="form-section-header">
-          Installation Paths
-        </div>
+        <div class="form-section-header">程序文件</div>
         <div class="form-section-body">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Installation Directory</label>
+              <label class="form-label">主程序 *</label>
               <div class="form-input-group">
-                <input type="text" class="form-input" id="installDir" placeholder="%ProgramFiles%\AppName">
-                <button class="btn btn-browse" onclick="selectInstallDir()">Browse</button>
+                <input type="text" class="form-input" id="mainExe" placeholder="选择主程序可执行文件">
+                <button class="btn btn-browse" onclick="selectMainExe()">浏览</button>
               </div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Output Directory</label>
+              <label class="form-label">安装图标</label>
               <div class="form-input-group">
-                <input type="text" class="form-input" id="outputDir" placeholder="Where to save installer">
-                <button class="btn btn-browse" onclick="selectOutputDir()">Browse</button>
+                <input type="text" class="form-input" id="installIcon" placeholder=".ico 图标文件（可选）">
+                <button class="btn btn-browse" onclick="selectInstallIcon()">浏览</button>
               </div>
             </div>
           </div>
@@ -761,26 +728,48 @@ body {
       </div>
 
       <div class="form-section">
-        <div class="form-section-header">
-          Shortcuts
+        <div class="form-section-header">安装路径</div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">安装目录</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="installDir" placeholder="%ProgramFiles%\应用名称">
+                <button class="btn btn-browse" onclick="selectInstallDir()">浏览</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">输出目录</label>
+              <div class="form-input-group">
+                <input type="text" class="form-input" id="outputDir" placeholder="安装包输出位置">
+                <button class="btn btn-browse" onclick="selectOutputDir()">浏览</button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header">快捷方式</div>
         <div class="form-section-body">
           <div class="form-row">
             <label class="form-checkbox">
               <input type="checkbox" id="desktopShortcut" checked>
-              <span>Create Desktop Shortcut</span>
+              <span>创建桌面快捷方式</span>
             </label>
           </div>
           <div class="form-row">
             <label class="form-checkbox">
               <input type="checkbox" id="startMenuShortcut" checked>
-              <span>Create Start Menu Shortcut</span>
+              <span>创建开始菜单快捷方式</span>
             </label>
           </div>
           <div class="form-row">
             <label class="form-checkbox">
               <input type="checkbox" id="uninstaller" checked>
-              <span>Create Uninstaller</span>
+              <span>生成卸载程序</span>
             </label>
           </div>
         </div>
@@ -790,25 +779,24 @@ body {
     <!-- Files View -->
     <div id="view-files" class="view-panel hidden">
       <div class="content-header">
-        <div class="content-title">Source Files</div>
-        <button class="btn" onclick="selectSourceDir()">Select Directory</button>
+        <div class="content-title">源文件</div>
+        <button class="btn" onclick="selectSourceDir()">选择目录</button>
       </div>
-
       <div class="form-section">
         <div class="form-section-header">
-          Source Directory
-          <span id="sourceDirDisplay" style="color: var(--muted-text); font-weight: normal;"></span>
+          源文件目录
+          <span id="sourceDirDisplay" style="color:var(--muted-text);font-weight:normal;"></span>
         </div>
         <div class="form-section-body">
           <div id="filesEmpty" class="empty-state">
             <div class="empty-icon">📁</div>
-            <div class="empty-title">No Files Selected</div>
-            <div class="empty-desc">Select a source directory to scan for files</div>
+            <div class="empty-title">未选择文件</div>
+            <div class="empty-desc">选择源文件目录以扫描文件</div>
           </div>
           <div id="filesInfo" class="hidden">
-            <div style="margin-bottom: 12px; display: flex; gap: 24px;">
-              <span>Total: <strong id="totalFiles">0</strong> files</span>
-              <span>Size: <strong id="totalSize">0 KB</strong></span>
+            <div style="margin-bottom:10px;display:flex;gap:20px;font-size:12px;">
+              <span>文件数: <strong id="totalFiles">0</strong></span>
+              <span>总大小: <strong id="totalSize">0 KB</strong></span>
             </div>
             <div class="file-list" id="fileList"></div>
           </div>
@@ -819,33 +807,24 @@ body {
     <!-- Build View -->
     <div id="view-build" class="view-panel hidden">
       <div class="content-header">
-        <div class="content-title">Build Installer</div>
-        <button class="btn btn-primary" onclick="startBuild()" id="buildBtn">Build Installer</button>
+        <div class="content-title">构建安装包</div>
+        <button class="btn btn-primary" onclick="startBuild()" id="buildBtn">开始构建</button>
       </div>
-
       <div class="form-section">
-        <div class="form-section-header">
-          Build Log
-        </div>
+        <div class="form-section-header">构建日志</div>
         <div class="form-section-body">
           <div class="build-log" id="buildLog">
-            <div class="log-line info">
-              <span class="log-timestamp">[--:--:--]</span>
-              Ready to build
-            </div>
+            <div class="log-line info"><span class="log-timestamp">[--:--:--]</span>等待构建</div>
           </div>
         </div>
       </div>
-
       <div class="form-section">
-        <div class="form-section-header">
-          Build Progress
-        </div>
+        <div class="form-section-header">构建进度</div>
         <div class="form-section-body">
           <div class="progress-bar">
-            <div class="progress-fill" id="buildProgress" style="width: 0%"></div>
+            <div class="progress-fill" id="buildProgress" style="width:0%"></div>
           </div>
-          <div style="margin-top: 8px; color: var(--muted-text);" id="buildStatus">Not started</div>
+          <div style="margin-top:6px;color:var(--muted-text);font-size:12px;" id="buildStatus">未开始</div>
         </div>
       </div>
     </div>
@@ -853,21 +832,19 @@ body {
     <!-- Output View -->
     <div id="view-output" class="view-panel hidden">
       <div class="content-header">
-        <div class="content-title">Output</div>
+        <div class="content-title">输出文件</div>
+        <button class="btn btn-sm" onclick="openOutputFolder()">打开输出目录</button>
       </div>
-
       <div class="form-section">
-        <div class="form-section-header">
-          Generated Installers
-        </div>
+        <div class="form-section-header">已生成的安装包</div>
         <div class="form-section-body">
           <div id="outputEmpty" class="empty-state">
             <div class="empty-icon">📦</div>
-            <div class="empty-title">No Output Yet</div>
-            <div class="empty-desc">Build an installer to see output here</div>
+            <div class="empty-title">暂无输出</div>
+            <div class="empty-desc">构建安装包后将在此显示</div>
           </div>
           <div id="outputList" class="hidden">
-            <!-- Dynamic -->
+            <div class="file-list" id="outputFileList"></div>
           </div>
         </div>
       </div>
@@ -879,13 +856,13 @@ body {
 <div class="statusbar">
   <div class="statusbar-left">
     <div class="status-item">
-      <span class="status-dot"></span>
-      <span id="statusText">Ready</span>
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">就绪</span>
     </div>
-    <div class="status-item" id="currentProjectName" style="color: var(--text-color);"></div>
+    <div class="status-item" id="currentProjectDisplay" style="color:var(--text-color);"></div>
   </div>
   <div class="statusbar-right">
-    <div class="status-item">v1.0.0</div>
+    <span>v1.0.0</span>
   </div>
 </div>
 
@@ -904,13 +881,12 @@ const state = {
   currentProject: null,
   projects: [],
   currentView: 'config',
-  buildRunning: false
+  building: false
 };
 
 // === API Helper ===
 const API = {
   _ready: false,
-  _queue: [],
 
   async _wait() {
     if (typeof pywebview !== 'undefined' && pywebview.api) {
@@ -934,11 +910,9 @@ const API = {
     await this._wait();
     try {
       const fn = pywebview.api[method];
-      if (!fn) throw new Error(`API method not found: ${method}`);
+      if (!fn) throw new Error(`API 方法不存在: ${method}`);
       const result = await fn(...args);
-      if (!result.success) {
-        throw new Error(result.message || 'Unknown error');
-      }
+      if (!result.success) throw new Error(result.message || '未知错误');
       return result.data;
     } catch (e) {
       console.error(`API Error [${method}]:`, e);
@@ -951,7 +925,6 @@ const API = {
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
-
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.innerHTML = `
@@ -959,7 +932,6 @@ function showToast(message, type = 'info') {
     <span class="toast-message">${message}</span>
     <span class="toast-close" onclick="this.parentElement.remove()">×</span>
   `;
-
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
@@ -979,10 +951,7 @@ function showModal(title, bodyHTML, footerHTML = '', onInit = null) {
       </div>
     </div>
   `;
-
-  if (onInit) {
-    setTimeout(onInit, 50);
-  }
+  if (onInit) setTimeout(onInit, 50);
 }
 
 function closeModal(e) {
@@ -1007,28 +976,16 @@ function hideContextMenu() {
 }
 
 document.addEventListener('click', hideContextMenu);
-document.addEventListener('contextmenu', (e) => {
-  if (!e.target.closest('.project-item, .file-item')) {
-    hideContextMenu();
-  }
-});
 
 // === View Switching ===
 function switchView(view) {
   state.currentView = view;
-
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.view === view);
   });
-
-  document.querySelectorAll('.view-panel').forEach(panel => {
-    panel.classList.add('hidden');
-  });
+  document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
   document.getElementById(`view-${view}`).classList.remove('hidden');
-
-  if (view === 'output') {
-    loadOutputs();
-  }
+  if (view === 'output') loadOutputs();
 }
 
 // === Project Management ===
@@ -1037,46 +994,54 @@ async function loadProjects() {
     state.projects = await API.call('list_projects');
     renderProjectList();
   } catch (e) {
-    console.error('Failed to load projects:', e);
+    console.error('加载项目列表失败:', e);
+  }
+}
+
+async function loadRecentProjects() {
+  try {
+    state.projects = await API.call('get_recent_projects');
+    renderProjectList();
+  } catch (e) {
+    console.error('加载最近项目失败:', e);
   }
 }
 
 function renderProjectList() {
   const list = document.getElementById('projectList');
-
-  if (state.projects.length === 0) {
-    list.innerHTML = '<div style="padding: 12px; color: var(--muted-text); text-align: center; font-size: 12px;">No projects</div>';
+  if (!state.projects?.length) {
+    list.innerHTML = '<div style="padding:12px;color:var(--muted-text);text-align:center;font-size:12px;">暂无项目</div>';
     return;
   }
-
   list.innerHTML = state.projects.map(p => `
     <div class="project-item${state.currentProject?.id === p.id ? ' active' : ''}"
-         onclick="loadProject('${p.id}')"
-         oncontextmenu="showProjectContextMenu(event, '${p.id}')">
+         onclick="loadProject('${p.path || p.id}')"
+         oncontextmenu="showProjectContextMenu(event, '${p.path || p.id}')">
       <div class="project-item-name">${escapeHtml(p.name)}</div>
-      <div class="project-item-meta">${formatDate(p.modified)}</div>
+      <div class="project-item-meta">${formatDate(p.modified)} · v${p.version || '1.0.0'}</div>
     </div>
   `).join('');
 }
 
-async function loadProject(id) {
+async function loadProject(pathOrId) {
   try {
-    const project = await API.call('load_project', id);
+    const project = await API.call('load_project', pathOrId);
     state.currentProject = project;
     populateForm(project);
     renderProjectList();
     updateStatus(project.name);
     switchView('config');
-    showToast(`Loaded: ${project.name}`, 'success');
+    showToast(`已加载: ${project.name}`, 'success');
   } catch (e) {
-    showToast('Failed to load project', 'error');
+    showToast('加载项目失败', 'error');
   }
 }
 
 function populateForm(project) {
   const cfg = project.config || {};
+  const auto = project.auto_version || {};
+
   document.getElementById('appName').value = cfg.app_name || '';
-  document.getElementById('appVersion').value = cfg.app_version || '';
   document.getElementById('publisher').value = cfg.publisher || '';
   document.getElementById('mainExe').value = cfg.main_exe || '';
   document.getElementById('installDir').value = cfg.install_dir || '';
@@ -1085,12 +1050,30 @@ function populateForm(project) {
   document.getElementById('desktopShortcut').checked = cfg.desktop_shortcut !== false;
   document.getElementById('startMenuShortcut').checked = cfg.start_menu_shortcut !== false;
   document.getElementById('uninstaller').checked = cfg.uninstaller !== false;
+
+  // 版本号
+  const ver = (cfg.app_version || '1.0.0').split('.');
+  document.getElementById('verMajor').value = ver[0] || '1';
+  document.getElementById('verMinor').value = ver[1] || '0';
+  document.getElementById('verPatch').value = ver[2] || '0';
+
+  // 自动版本
+  document.getElementById('autoPatch').checked = auto.increment_patch || false;
+  document.getElementById('autoMinor').checked = auto.increment_minor || false;
+  document.getElementById('autoMajor').checked = auto.increment_major || false;
+  updateAutoVersionUI();
 }
 
 function collectFormData() {
+  const version = [
+    document.getElementById('verMajor').value || '1',
+    document.getElementById('verMinor').value || '0',
+    document.getElementById('verPatch').value || '0'
+  ].join('.');
+
   return {
     app_name: document.getElementById('appName').value,
-    app_version: document.getElementById('appVersion').value,
+    app_version: version,
     publisher: document.getElementById('publisher').value,
     main_exe: document.getElementById('mainExe').value,
     install_dir: document.getElementById('installDir').value,
@@ -1104,33 +1087,46 @@ function collectFormData() {
 
 async function saveCurrentProject() {
   if (!state.currentProject) {
-    showToast('No project loaded', 'warning');
+    showToast('没有打开的项目', 'warning');
     return;
   }
 
-  state.currentProject.config = { ...state.currentProject.config, ...collectFormData() };
+  const config = collectFormData();
+  state.currentProject.config = { ...state.currentProject.config, ...config };
+
+  // 自动版本配置
+  state.currentProject.auto_version = {
+    increment_patch: document.getElementById('autoPatch').checked,
+    increment_minor: document.getElementById('autoMinor').checked,
+    increment_major: document.getElementById('autoMajor').checked,
+  };
 
   try {
     await API.call('save_project', JSON.stringify(state.currentProject));
-    showToast('Project saved', 'success');
+    await API.call('set_auto_version',
+      state.currentProject.auto_version.increment_patch,
+      state.currentProject.auto_version.increment_minor,
+      state.currentProject.auto_version.increment_major
+    );
     renderProjectList();
+    showToast('项目已保存', 'success');
   } catch (e) {
-    showToast('Failed to save', 'error');
+    showToast('保存失败', 'error');
   }
 }
 
 function showNewProjectModal() {
-  showModal('New Project',
+  showModal('新建项目',
     `<div class="form-group">
-      <label class="form-label">Project Name</label>
-      <input type="text" class="form-input" id="newProjectName" placeholder="My Installer">
+      <label class="form-label">项目名称</label>
+      <input type="text" class="form-input" id="newProjectName" placeholder="我的安装包">
     </div>`,
-    `<button class="btn" onclick="closeModal()">Cancel</button>
-     <button class="btn btn-primary" onclick="createNewProject()">Create</button>`,
+    `<button class="btn" onclick="closeModal()">取消</button>
+     <button class="btn btn-primary" onclick="createNewProject()">创建</button>`,
     () => {
       const input = document.getElementById('newProjectName');
       input.focus();
-      input.addEventListener('keydown', (e) => {
+      input.addEventListener('keydown', e => {
         if (e.key === 'Enter') createNewProject();
         if (e.key === 'Escape') closeModal();
       });
@@ -1141,7 +1137,7 @@ function showNewProjectModal() {
 async function createNewProject() {
   const name = document.getElementById('newProjectName').value.trim();
   if (!name) {
-    showToast('Please enter a name', 'warning');
+    showToast('请输入项目名称', 'warning');
     return;
   }
 
@@ -1153,60 +1149,107 @@ async function createNewProject() {
     updateStatus(project.name);
     closeModal();
     switchView('config');
-    showToast(`Created: ${name}`, 'success');
+    showToast(`已创建: ${name}`, 'success');
   } catch (e) {
-    showToast('Failed to create project', 'error');
+    showToast('创建失败', 'error');
   }
 }
 
-function showProjectContextMenu(e, id) {
+async function showOpenProjectDialog() {
+  try {
+    const result = await API.call('select_open_file');
+    if (result?.path) {
+      await loadProject(result.path);
+    }
+  } catch (e) {
+    console.error('打开项目失败:', e);
+  }
+}
+
+async function showSaveAsDialog() {
+  if (!state.currentProject) {
+    showToast('没有当前项目', 'warning');
+    return;
+  }
+
+  try {
+    const result = await API.call('select_save_file', state.currentProject.name + '.ssc');
+    if (result?.path) {
+      const project = await API.call('save_project_as', result.path);
+      state.currentProject = project;
+      updateStatus(project.name);
+      await loadProjects();
+      showToast('项目已另存', 'success');
+    }
+  } catch (e) {
+    showToast('另存失败', 'error');
+  }
+}
+
+function showProjectContextMenu(e, path) {
   e.preventDefault();
   showContextMenu(e.clientX, e.clientY, [
-    { label: 'Open', icon: '📂', action: `loadProject('${id}')` },
-    { label: 'Delete', icon: '🗑', action: `deleteProject('${id}')`, danger: true },
+    { label: '打开', icon: '📂', action: `loadProject('${path}')` },
+    { divider: true },
+    { label: '删除', icon: '🗑', action: `deleteProject('${path}')`, danger: true },
   ]);
 }
 
-async function deleteProject(id) {
-  if (!confirm('Delete this project?')) return;
+async function deleteProject(path) {
+  if (!confirm('确定要删除此项目吗？')) return;
 
   try {
-    await API.call('delete_project', id);
-    if (state.currentProject?.id === id) {
+    await API.call('delete_project', path);
+    if (state.currentProject?.path === path) {
       state.currentProject = null;
       updateStatus('');
     }
     await loadProjects();
-    showToast('Project deleted', 'success');
+    showToast('项目已删除', 'success');
   } catch (e) {
-    showToast('Failed to delete', 'error');
+    showToast('删除失败', 'error');
   }
 }
 
-function openProjectList() {
-  loadProjects();
+// === Version ===
+function onAutoVersionChange() {
+  updateAutoVersionUI();
+}
+
+function updateAutoVersionUI() {
+  const major = document.getElementById('autoMajor').checked;
+  const minor = document.getElementById('autoMinor').checked;
+  const patchWrap = document.getElementById('autoPatch').parentElement;
+
+  // 主版本或次版本勾选时，禁用修订版本
+  if (major || minor) {
+    patchWrap.classList.add('disabled');
+    document.getElementById('autoPatch').checked = false;
+  } else {
+    patchWrap.classList.remove('disabled');
+  }
 }
 
 // === File Selection ===
 async function selectMainExe() {
   try {
-    const result = await API.call('select_file', 'Executable (*.exe)');
+    const result = await API.call('select_file', '可执行文件 (*.exe)');
     if (result?.path) {
       document.getElementById('mainExe').value = result.path;
     }
   } catch (e) {
-    showToast('Failed to select file', 'error');
+    showToast('选择文件失败', 'error');
   }
 }
 
 async function selectInstallIcon() {
   try {
-    const result = await API.call('select_file', 'Icon (*.ico)');
+    const result = await API.call('select_file', '图标文件 (*.ico)');
     if (result?.path) {
       document.getElementById('installIcon').value = result.path;
     }
   } catch (e) {
-    showToast('Failed to select file', 'error');
+    showToast('选择文件失败', 'error');
   }
 }
 
@@ -1217,7 +1260,7 @@ async function selectInstallDir() {
       document.getElementById('installDir').value = result.path;
     }
   } catch (e) {
-    showToast('Failed to select folder', 'error');
+    showToast('选择目录失败', 'error');
   }
 }
 
@@ -1228,7 +1271,7 @@ async function selectOutputDir() {
       document.getElementById('outputDir').value = result.path;
     }
   } catch (e) {
-    showToast('Failed to select folder', 'error');
+    showToast('选择目录失败', 'error');
   }
 }
 
@@ -1239,7 +1282,7 @@ async function selectSourceDir() {
       await scanSourceDir(result.path);
     }
   } catch (e) {
-    showToast('Failed to select folder', 'error');
+    showToast('选择目录失败', 'error');
   }
 }
 
@@ -1249,11 +1292,12 @@ async function scanSourceDir(path) {
     renderFileList(data);
     document.getElementById('sourceDirDisplay').textContent = path;
 
+    // 自动设置主程序
     if (data.exe_files?.length > 0 && !document.getElementById('mainExe').value) {
       document.getElementById('mainExe').value = path + '\\' + data.exe_files[0];
     }
   } catch (e) {
-    showToast('Failed to scan directory', 'error');
+    showToast('扫描目录失败', 'error');
   }
 }
 
@@ -1278,7 +1322,7 @@ function renderFileList(data) {
   document.getElementById('totalSize').textContent = data.total_size_formatted;
   countBadge.textContent = data.file_count;
 
-  const displayFiles = data.files.slice(0, 100);
+  const displayFiles = data.files.slice(0, 80);
   list.innerHTML = displayFiles.map(f => `
     <div class="file-item">
       <span class="file-icon">📄</span>
@@ -1287,69 +1331,82 @@ function renderFileList(data) {
     </div>
   `).join('');
 
-  if (data.files.length > 100) {
-    list.innerHTML += `<div class="file-item" style="color: var(--muted-text); justify-content: center;">... and ${data.files.length - 100} more files</div>`;
+  if (data.files.length > 80) {
+    list.innerHTML += `<div class="file-item" style="color:var(--muted-text);justify-content:center;">... 还有 ${data.files.length - 80} 个文件</div>`;
   }
 }
 
 // === Build ===
 async function startBuild() {
   if (!state.currentProject) {
-    showToast('Please open a project first', 'warning');
+    showToast('请先打开或创建项目', 'warning');
     return;
   }
 
-  state.currentProject.config = { ...state.currentProject.config, ...collectFormData() };
+  // 先保存
+  await saveCurrentProject();
 
-  const validation = await API.call('validate_project', JSON.stringify(state.currentProject));
-  if (!validation.valid) {
-    showToast(validation.errors[0], 'error');
-    return;
+  // 验证
+  try {
+    const validation = await API.call('validate_project');
+    if (!validation.valid) {
+      showToast(validation.errors[0], 'error');
+      return;
+    }
+    if (validation.warnings.length) {
+      showToast(validation.warnings[0], 'warning');
+    }
+  } catch (e) {
+    console.error('验证失败:', e);
   }
 
-  if (validation.warnings.length) {
-    showToast(validation.warnings[0], 'warning');
-  }
-
-  state.buildRunning = true;
+  state.building = true;
   document.getElementById('buildBtn').disabled = true;
   document.getElementById('buildProgress').style.width = '0%';
-  document.getElementById('buildStatus').textContent = 'Building...';
+  document.getElementById('buildStatus').textContent = '构建中...';
+  document.getElementById('statusDot').classList.add('building');
 
   const log = document.getElementById('buildLog');
   log.innerHTML = '';
 
-  const steps = [
-    'Validating configuration...',
-    'Scanning source files...',
-    'Creating build manifest...',
-    'Generating installer script...',
-    'Compiling installer...',
-    'Writing output file...',
-  ];
+  const steps = ['验证配置', '扫描源文件', '生成清单', '准备输出', '构建安装包', '完成输出'];
 
   for (let i = 0; i < steps.length; i++) {
-    await delay(400 + Math.random() * 300);
-    addLogLine(steps[i], 'info');
+    await delay(300 + Math.random() * 200);
+    addLogLine(steps[i] + '...', 'info');
     document.getElementById('buildProgress').style.width = ((i + 1) / steps.length * 100) + '%';
   }
 
   try {
-    const result = await API.call('build_installer', JSON.stringify(state.currentProject));
-    addLogLine('Build completed!', 'success');
-    document.getElementById('buildStatus').textContent = 'Completed';
-    showToast('Build successful', 'success');
+    const result = await API.call('build_installer');
+    if (result.success) {
+      addLogLine('构建完成！', 'success');
+      document.getElementById('buildStatus').textContent = '构建完成';
+      document.getElementById('buildProgress').style.width = '100%';
+      showToast('构建成功', 'success');
 
-    state.currentProject.build_log = result.log || [];
-    await API.call('save_project', JSON.stringify(state.currentProject));
+      // 更新版本号显示
+      if (state.currentProject) {
+        const project = await API.call('get_current_project');
+        if (project) {
+          state.currentProject = project;
+          populateForm(project);
+        }
+      }
+    } else {
+      addLogLine('构建失败: ' + (result.error || '未知错误'), 'error');
+      document.getElementById('buildStatus').textContent = '构建失败';
+      showToast('构建失败', 'error');
+    }
   } catch (e) {
-    addLogLine('Build failed: ' + e.message, 'error');
-    document.getElementById('buildStatus').textContent = 'Failed';
-    showToast('Build failed', 'error');
+    addLogLine('构建异常: ' + e.message, 'error');
+    document.getElementById('buildStatus').textContent = '构建失败';
+    showToast('构建失败', 'error');
   }
 
-  state.buildRunning = false;
+  state.building = false;
   document.getElementById('buildBtn').disabled = false;
+  document.getElementById('statusDot').classList.remove('building');
 }
 
 function addLogLine(text, type = 'info') {
@@ -1365,13 +1422,14 @@ async function loadOutputs() {
     const outputs = await API.call('list_outputs');
     renderOutputList(outputs);
   } catch (e) {
-    console.error('Failed to load outputs:', e);
+    console.error('加载输出失败:', e);
   }
 }
 
 function renderOutputList(outputs) {
   const empty = document.getElementById('outputEmpty');
   const list = document.getElementById('outputList');
+  const fileList = document.getElementById('outputFileList');
 
   if (!outputs?.length) {
     empty.classList.remove('hidden');
@@ -1382,7 +1440,7 @@ function renderOutputList(outputs) {
   empty.classList.add('hidden');
   list.classList.remove('hidden');
 
-  list.innerHTML = outputs.map(o => `
+  fileList.innerHTML = outputs.map(o => `
     <div class="file-item">
       <span class="file-icon">📦</span>
       <span class="file-name">${escapeHtml(o.name)}</span>
@@ -1390,6 +1448,14 @@ function renderOutputList(outputs) {
       <span class="file-size">${formatDate(o.modified)}</span>
     </div>
   `).join('');
+}
+
+async function openOutputFolder() {
+  try {
+    await API.call('open_output_folder');
+  } catch (e) {
+    showToast('打开目录失败', 'error');
+  }
 }
 
 // === Utilities ===
@@ -1406,7 +1472,7 @@ function formatDate(iso) {
 }
 
 function updateStatus(name) {
-  document.getElementById('currentProjectName').textContent = name ? `Project: ${name}` : '';
+  document.getElementById('currentProjectDisplay').textContent = name ? `项目: ${name}` : '';
 }
 
 function delay(ms) {
@@ -1414,33 +1480,30 @@ function delay(ms) {
 }
 
 // === Keyboard ===
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeModal();
     hideContextMenu();
   }
-
   if (e.ctrlKey && e.key === 's') {
     e.preventDefault();
     saveCurrentProject();
   }
-
   if (e.ctrlKey && e.key === 'b') {
     e.preventDefault();
-    if (state.currentView === 'build') {
-      startBuild();
-    }
+    switchView('build');
+    if (!state.building) startBuild();
   }
 });
 
 // === Init ===
 window.addEventListener('pywebviewready', () => {
-  loadProjects();
+  loadRecentProjects();
 });
 
 setTimeout(() => {
   if (typeof pywebview !== 'undefined') {
-    loadProjects();
+    loadRecentProjects();
   }
 }, 100);
 </script>
