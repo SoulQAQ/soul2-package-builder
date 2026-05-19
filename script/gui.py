@@ -55,10 +55,10 @@ class AppApi:
     """前端 API 桥接。"""
 
     def __init__(self):
-        self._window: Optional[webview.Window] = None
+        self._window: Optional[Any] = None
         self.core = Core()
 
-    def set_window(self, window: webview.Window):
+    def set_window(self, window: Any):
         self._window = window
 
     def _response(self, success: bool, data: Any = None, message: str = "") -> dict:
@@ -313,7 +313,7 @@ class AppApi:
             return self._error(str(e))
 
 
-def create_main_window(api: AppApi) -> webview.Window:
+def create_main_window(api: AppApi) -> Any:
     webui_path = get_webui_path()
     icon_path = get_icon_path()
 

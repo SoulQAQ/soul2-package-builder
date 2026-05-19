@@ -74,6 +74,7 @@ class ProjectManager:
         safe_name = (name or "").strip() or "未命名项目"
         install_dir = f"%ProgramFiles%\\{safe_name}"
         output_dir = str(self.base_dir / "output")
+        builtin_icon = str(self.base_dir / "app.ico")
         return {
             "schemaVersion": self.SCHEMA_VERSION,
             "id": str(uuid.uuid4())[:8],
@@ -90,7 +91,7 @@ class ProjectManager:
             "autoVersion": {"patch": False, "minor": False, "major": False},
             "paths": {
                 "mainExecutable": "",
-                "installIcon": "",
+                "installIcon": builtin_icon,
                 "sourceDir": "",
                 "installDir": install_dir,
                 "outputDir": output_dir,
@@ -111,7 +112,7 @@ class ProjectManager:
                 "main_exe": "",
                 "install_dir": install_dir,
                 "output_dir": output_dir,
-                "install_icon": "",
+                "install_icon": builtin_icon,
                 "source_dir": "",
                 "uninstaller": True,
                 "desktop_shortcut": True,
@@ -122,7 +123,7 @@ class ProjectManager:
                 "increment_minor": False,
                 "increment_major": False,
             },
-            "version": "1.0.0",
+            "versionString": "1.0.0",
         }
 
     def _normalize_project(self, project: Dict[str, Any], path: Optional[Path] = None) -> Dict[str, Any]:
@@ -167,6 +168,9 @@ class ProjectManager:
             str(config.get("app_version") or data.get("version") or "1.0.0")
         )
         config["app_version"] = normalized_version
+        builtin_icon_path = self.base_dir / "app.ico"
+        if not str(config.get("install_icon") or "").strip() and builtin_icon_path.exists():
+            config["install_icon"] = str(builtin_icon_path)
         v_major, v_minor, v_patch = VersionManager.parse(normalized_version)
         data["version"] = {"major": v_major, "minor": v_minor, "patch": v_patch}
 

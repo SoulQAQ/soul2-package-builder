@@ -22,7 +22,6 @@
   --transition: 0.15s ease;
   --nav-width: 200px;
   --statusbar-height: 28px;
-  --header-height: 36px;
 }
 
 * {
@@ -40,33 +39,10 @@ body {
   user-select: none;
 }
 
-/* Header */
-.header {
-  height: var(--header-height);
-  background: var(--panel-bg);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  -webkit-app-region: drag;
-}
-
-.header-title {
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.header-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 6px;
-  -webkit-app-region: no-drag;
-}
-
 /* Layout */
 .main-layout {
   display: flex;
-  height: calc(100vh - var(--header-height) - var(--statusbar-height));
+  height: calc(100vh - var(--statusbar-height));
 }
 
 /* Sidebar */
@@ -172,6 +148,16 @@ body {
   padding: 16px;
 }
 
+.config-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.config-column {
+  min-width: 0;
+}
+
 .content-header {
   display: flex;
   align-items: center;
@@ -182,6 +168,11 @@ body {
 .content-title {
   font-size: 16px;
   font-weight: 600;
+}
+
+.content-subtitle {
+  font-size: 12px;
+  color: var(--muted-text);
 }
 
 /* Form */
@@ -204,6 +195,21 @@ body {
 
 .form-section-body {
   padding: 12px 14px;
+}
+
+.form-note {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius);
+  color: var(--muted-text);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.top-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .form-row {
@@ -321,6 +327,38 @@ body {
 .version-auto-controls .form-checkbox {
   height: auto;
   font-size: 12px;
+}
+
+.version-summary {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted-text);
+}
+
+.version-summary strong {
+  color: var(--text-color);
+}
+
+.info-inline {
+  font-size: 12px;
+  color: var(--muted-text);
+}
+
+.source-picker-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.select-input {
+  width: 100%;
+  height: 28px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-color);
+  padding: 0 10px;
 }
 
 /* Buttons */
@@ -601,6 +639,12 @@ body {
 
 .hidden { display: none !important; }
 
+@media (max-width: 1240px) {
+  .config-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -609,16 +653,6 @@ body {
 </style>
 </head>
 <body>
-<!-- Header -->
-<div class="header">
-  <div class="header-title">安装包生成器</div>
-  <div class="header-actions">
-    <button class="btn btn-sm" onclick="showNewProjectModal()">+ 新建</button>
-    <button class="btn btn-sm" onclick="showOpenProjectDialog()">打开</button>
-    <button class="btn btn-sm" onclick="saveCurrentProject()">保存</button>
-  </div>
-</div>
-
 <!-- Main Layout -->
 <div class="main-layout">
   <!-- Sidebar -->
@@ -647,130 +681,166 @@ body {
     <!-- Config View -->
     <div id="view-config" class="view-panel">
       <div class="content-header">
-        <div class="content-title">安装配置</div>
-        <div style="display:flex;gap:8px;">
+        <div>
+          <div class="content-title">安装配置</div>
+          <div class="content-subtitle">第三阶段：高密度布局、说明强化、版本规则可视化</div>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-sm" onclick="showNewProjectModal()">+ 新建</button>
+          <button class="btn btn-sm" onclick="showOpenProjectDialog()">打开</button>
           <button class="btn btn-sm" onclick="saveCurrentProject()">保存项目</button>
           <button class="btn btn-sm" onclick="showSaveAsDialog()">另存为</button>
         </div>
       </div>
 
-      <div class="form-section">
-        <div class="form-section-header">基本信息</div>
-        <div class="form-section-body">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">应用名称 *</label>
-              <input type="text" class="form-input" id="appName" placeholder="我的应用">
-            </div>
-            <div class="form-group">
-              <label class="form-label">发布者</label>
-              <input type="text" class="form-input" id="publisher" placeholder="公司或个人名称">
+      <div class="config-layout">
+        <div class="config-column">
+          <div class="form-section">
+            <div class="form-section-header">源文件</div>
+            <div class="form-section-body">
+              <div class="source-picker-row">
+                <div class="form-group">
+                  <label class="form-label">源文件目录</label>
+                  <input type="text" class="form-input" id="sourceDirInput" placeholder="先选择待打包程序所在目录">
+                </div>
+                <button class="btn btn-browse" onclick="selectSourceDir()">浏览</button>
+              </div>
+              <div class="info-inline" id="sourceSummary">未扫描源文件</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="form-section">
-        <div class="form-section-header">版本号</div>
-        <div class="form-section-body">
-          <div class="form-row">
-            <div class="form-group">
-              <div class="version-row">
-                <div class="version-input-group">
-                  <input type="number" class="form-input version-segment" id="verMajor" min="0" value="1">
-                  <span class="version-dot">.</span>
-                  <input type="number" class="form-input version-segment" id="verMinor" min="0" value="0">
-                  <span class="version-dot">.</span>
-                  <input type="number" class="form-input version-segment" id="verPatch" min="0" value="0">
+          <div class="form-section">
+            <div class="form-section-header">基本信息</div>
+            <div class="form-section-body">
+              <div class="form-note">
+                选择源文件目录后，可从扫描到的可执行文件中指定主程序。
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">应用名称 *</label>
+                  <input type="text" class="form-input" id="appName" placeholder="我的应用">
                 </div>
-                <div class="version-auto-controls">
-                  <label class="form-checkbox">
-                    <input type="checkbox" id="autoPatch" onchange="onAutoVersionChange()">
+                <div class="form-group">
+                  <label class="form-label">发布者</label>
+                  <input type="text" class="form-input" id="publisher" placeholder="公司或个人名称">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">版本号</div>
+            <div class="form-section-body">
+              <div class="form-note">
+                规则：默认修订版本可连续 +1；次版本/主版本 +1 仅生效一次，构建成功后会自动取消勾选。
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="version-row">
+                    <div class="version-input-group">
+                      <input type="number" class="form-input version-segment" id="verMajor" min="0" value="1" onchange="onVersionInputChange()">
+                      <span class="version-dot">.</span>
+                      <input type="number" class="form-input version-segment" id="verMinor" min="0" value="0" onchange="onVersionInputChange()">
+                      <span class="version-dot">.</span>
+                      <input type="number" class="form-input version-segment" id="verPatch" min="0" value="0" onchange="onVersionInputChange()">
+                    </div>
+                    <div class="version-auto-controls">
+                  <label class="form-checkbox" id="autoPatchWrap">
+                    <input type="checkbox" id="autoPatch" onchange="onAutoVersionChange('patch')">
                     <span>构建后修订版本 +1</span>
                   </label>
-                  <label class="form-checkbox" id="autoMinorWrap">
-                    <input type="checkbox" id="autoMinor" onchange="onAutoVersionChange()">
-                    <span>构建后次版本 +1</span>
-                  </label>
-                  <label class="form-checkbox" id="autoMajorWrap">
-                    <input type="checkbox" id="autoMajor" onchange="onAutoVersionChange()">
-                    <span>构建后主版本 +1</span>
-                  </label>
+                      <label class="form-checkbox" id="autoMinorWrap">
+                        <input type="checkbox" id="autoMinor" onchange="onAutoVersionChange('minor')">
+                        <span>构建后次版本 +1</span>
+                      </label>
+                      <label class="form-checkbox" id="autoMajorWrap">
+                        <input type="checkbox" id="autoMajor" onchange="onAutoVersionChange('major')">
+                        <span>构建后主版本 +1</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="version-summary" id="versionSummary">当前版本: <strong>v1.0.0</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">程序文件</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">主程序 *</label>
+                  <div class="form-input-group">
+                    <select class="select-input" id="mainExeSelect" onchange="onMainExeSelectChange()">
+                      <option value="">先扫描源目录后选择主程序</option>
+                    </select>
+                    <input type="text" class="form-input hidden" id="mainExe" placeholder="主程序路径">
+                    <button class="btn btn-browse" onclick="selectMainExe()">浏览</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">安装图标</label>
+                  <div class="form-input-group">
+                    <input type="text" class="form-input" id="installIcon" placeholder=".ico 图标文件（默认使用 app.ico）">
+                    <button class="btn btn-browse" onclick="selectInstallIcon()">浏览</button>
+                  </div>
+                  <div class="info-inline">留空时自动使用应用根目录的 <code>app.ico</code>。</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="form-section">
-        <div class="form-section-header">程序文件</div>
-        <div class="form-section-body">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">主程序 *</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="mainExe" placeholder="选择主程序可执行文件">
-                <button class="btn btn-browse" onclick="selectMainExe()">浏览</button>
+        <div class="config-column">
+          <div class="form-section">
+            <div class="form-section-header">安装路径</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">安装目录</label>
+                  <div class="form-input-group">
+                    <input type="text" class="form-input" id="installDir" placeholder="%ProgramFiles%\应用名称">
+                    <button class="btn btn-browse" onclick="selectInstallDir()">浏览</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">输出目录</label>
+                  <div class="form-input-group">
+                    <input type="text" class="form-input" id="outputDir" placeholder="安装包输出位置">
+                    <button class="btn btn-browse" onclick="selectOutputDir()">浏览</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">安装图标</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="installIcon" placeholder=".ico 图标文件（可选）">
-                <button class="btn btn-browse" onclick="selectInstallIcon()">浏览</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="form-section">
-        <div class="form-section-header">安装路径</div>
-        <div class="form-section-body">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">安装目录</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="installDir" placeholder="%ProgramFiles%\应用名称">
-                <button class="btn btn-browse" onclick="selectInstallDir()">浏览</button>
+          <div class="form-section">
+            <div class="form-section-header">快捷方式</div>
+            <div class="form-section-body">
+              <div class="form-row">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="desktopShortcut" checked>
+                  <span>创建桌面快捷方式</span>
+                </label>
+              </div>
+              <div class="form-row">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="startMenuShortcut" checked>
+                  <span>创建开始菜单快捷方式</span>
+                </label>
+              </div>
+              <div class="form-row">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="uninstaller" checked>
+                  <span>生成卸载程序</span>
+                </label>
               </div>
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">输出目录</label>
-              <div class="form-input-group">
-                <input type="text" class="form-input" id="outputDir" placeholder="安装包输出位置">
-                <button class="btn btn-browse" onclick="selectOutputDir()">浏览</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-header">快捷方式</div>
-        <div class="form-section-body">
-          <div class="form-row">
-            <label class="form-checkbox">
-              <input type="checkbox" id="desktopShortcut" checked>
-              <span>创建桌面快捷方式</span>
-            </label>
-          </div>
-          <div class="form-row">
-            <label class="form-checkbox">
-              <input type="checkbox" id="startMenuShortcut" checked>
-              <span>创建开始菜单快捷方式</span>
-            </label>
-          </div>
-          <div class="form-row">
-            <label class="form-checkbox">
-              <input type="checkbox" id="uninstaller" checked>
-              <span>生成卸载程序</span>
-            </label>
           </div>
         </div>
       </div>
@@ -809,6 +879,9 @@ body {
       <div class="content-header">
         <div class="content-title">构建安装包</div>
         <button class="btn btn-primary" onclick="startBuild()" id="buildBtn">开始构建</button>
+      </div>
+      <div class="form-note">
+        构建成功后将按版本策略自动更新并保存到当前 <code>.ssc</code>：默认修订版可连续递增，次/主版本递增后会自动取消勾选。
       </div>
       <div class="form-section">
         <div class="form-section-header">构建日志</div>
@@ -862,7 +935,7 @@ body {
     <div class="status-item" id="currentProjectDisplay" style="color:var(--text-color);"></div>
   </div>
   <div class="statusbar-right">
-    <span>v1.0.0</span>
+    <span id="statusVersion">v1.0.0</span>
   </div>
 </div>
 
@@ -881,7 +954,9 @@ const state = {
   currentProject: null,
   projects: [],
   currentView: 'config',
-  building: false
+  building: false,
+  appInfo: null,
+  sourceScan: null
 };
 
 // === API Helper ===
@@ -1013,14 +1088,19 @@ function renderProjectList() {
     list.innerHTML = '<div style="padding:12px;color:var(--muted-text);text-align:center;font-size:12px;">暂无项目</div>';
     return;
   }
-  list.innerHTML = state.projects.map(p => `
+  list.innerHTML = state.projects.map((p, index) => `
     <div class="project-item${state.currentProject?.id === p.id ? ' active' : ''}"
-         onclick="loadProject('${p.path || p.id}')"
-         oncontextmenu="showProjectContextMenu(event, '${p.path || p.id}')">
+         data-project-index="${index}">
       <div class="project-item-name">${escapeHtml(p.name)}</div>
       <div class="project-item-meta">${formatDate(p.modified)} · v${p.version || '1.0.0'}</div>
     </div>
   `).join('');
+  list.querySelectorAll('.project-item').forEach(item => {
+    const project = state.projects[Number(item.dataset.projectIndex)];
+    const key = project?.path || project?.id;
+    item.addEventListener('click', () => loadProject(key));
+    item.addEventListener('contextmenu', event => showProjectContextMenu(event, key));
+  });
 }
 
 async function loadProject(pathOrId) {
@@ -1044,6 +1124,7 @@ function populateForm(project) {
   document.getElementById('appName').value = cfg.app_name || '';
   document.getElementById('publisher').value = cfg.publisher || '';
   document.getElementById('mainExe').value = cfg.main_exe || '';
+  document.getElementById('sourceDirInput').value = cfg.source_dir || '';
   document.getElementById('installDir').value = cfg.install_dir || '';
   document.getElementById('outputDir').value = cfg.output_dir || '';
   document.getElementById('installIcon').value = cfg.install_icon || '';
@@ -1061,10 +1142,24 @@ function populateForm(project) {
   document.getElementById('autoPatch').checked = auto.increment_patch || false;
   document.getElementById('autoMinor').checked = auto.increment_minor || false;
   document.getElementById('autoMajor').checked = auto.increment_major || false;
+  state.sourceScan = {
+    source_dir: cfg.source_dir || '',
+    files: project.files || [],
+    exe_files: (project.files || [])
+      .filter(file => String(file.path || '').toLowerCase().endsWith('.exe'))
+      .map(file => file.path),
+    file_count: (project.files || []).length,
+    total_size_formatted: '',
+  };
+  renderMainExeOptions(cfg.main_exe || '');
+  applyDefaultInstallIcon();
+  normalizeVersionInputs();
   updateAutoVersionUI();
+  updateVersionPreview();
 }
 
 function collectFormData() {
+  normalizeVersionInputs();
   const version = [
     document.getElementById('verMajor').value || '1',
     document.getElementById('verMinor').value || '0',
@@ -1076,6 +1171,7 @@ function collectFormData() {
     app_version: version,
     publisher: document.getElementById('publisher').value,
     main_exe: document.getElementById('mainExe').value,
+    source_dir: document.getElementById('sourceDirInput').value,
     install_dir: document.getElementById('installDir').value,
     output_dir: document.getElementById('outputDir').value,
     install_icon: document.getElementById('installIcon').value,
@@ -1083,6 +1179,23 @@ function collectFormData() {
     start_menu_shortcut: document.getElementById('startMenuShortcut').checked,
     uninstaller: document.getElementById('uninstaller').checked,
   };
+}
+
+function getCurrentVersionText() {
+  normalizeVersionInputs();
+  const major = document.getElementById('verMajor').value || '0';
+  const minor = document.getElementById('verMinor').value || '0';
+  const patch = document.getElementById('verPatch').value || '0';
+  return `${major}.${minor}.${patch}`;
+}
+
+function applyDefaultInstallIcon() {
+  const iconInput = document.getElementById('installIcon');
+  if (!iconInput) return;
+  const current = String(iconInput.value || '').trim();
+  if (!current && state.appInfo?.icon_path) {
+    iconInput.value = state.appInfo.icon_path;
+  }
 }
 
 async function saveCurrentProject() {
@@ -1173,10 +1286,23 @@ async function showSaveAsDialog() {
   }
 
   try {
+    const config = collectFormData();
+    state.currentProject.config = { ...state.currentProject.config, ...config };
+    state.currentProject.auto_version = {
+      increment_patch: document.getElementById('autoPatch').checked,
+      increment_minor: document.getElementById('autoMinor').checked,
+      increment_major: document.getElementById('autoMajor').checked,
+    };
     const result = await API.call('select_save_file', state.currentProject.name + '.ssc');
     if (result?.path) {
       const project = await API.call('save_project_as', result.path);
       state.currentProject = project;
+      await API.call('set_auto_version',
+        state.currentProject.auto_version.increment_patch,
+        state.currentProject.auto_version.increment_minor,
+        state.currentProject.auto_version.increment_major
+      );
+      state.currentProject = await API.call('get_current_project');
       updateStatus(project.name);
       await loadProjects();
       showToast('项目已另存', 'success');
@@ -1212,21 +1338,90 @@ async function deleteProject(path) {
 }
 
 // === Version ===
-function onAutoVersionChange() {
+function normalizeVersionInputs() {
+  const majorInput = document.getElementById('verMajor');
+  const minorInput = document.getElementById('verMinor');
+  const patchInput = document.getElementById('verPatch');
+  if (!majorInput || !minorInput || !patchInput) return;
+
+  const safeInt = value => {
+    const num = Number.parseInt(String(value || '').trim(), 10);
+    if (Number.isNaN(num) || num < 0) return 0;
+    return num;
+  };
+
+  const major = safeInt(majorInput.value);
+  const minor = safeInt(minorInput.value);
+  const patch = safeInt(patchInput.value);
+
+  majorInput.value = String(major);
+  minorInput.value = String(minor);
+  patchInput.value = String(patch);
+}
+
+function onAutoVersionChange(changedType = '') {
+  if (changedType === 'major' && document.getElementById('autoMajor').checked) {
+    document.getElementById('autoMinor').checked = false;
+    document.getElementById('autoPatch').checked = false;
+    document.getElementById('verMinor').value = '0';
+    document.getElementById('verPatch').value = '0';
+  } else if (changedType === 'minor' && document.getElementById('autoMinor').checked) {
+    document.getElementById('autoMajor').checked = false;
+    document.getElementById('autoPatch').checked = false;
+    document.getElementById('verPatch').value = '0';
+  } else if (changedType === 'patch' && document.getElementById('autoPatch').checked) {
+    document.getElementById('autoMinor').checked = false;
+    document.getElementById('autoMajor').checked = false;
+  }
+
+  normalizeVersionInputs();
   updateAutoVersionUI();
+  updateVersionPreview();
+}
+
+function onVersionInputChange() {
+  normalizeVersionInputs();
+  updateVersionPreview();
 }
 
 function updateAutoVersionUI() {
   const major = document.getElementById('autoMajor').checked;
   const minor = document.getElementById('autoMinor').checked;
-  const patchWrap = document.getElementById('autoPatch').parentElement;
+  const patchWrap = document.getElementById('autoPatchWrap');
+  const patchInput = document.getElementById('verPatch');
 
-  // 主版本或次版本勾选时，禁用修订版本
+  // 主版本或次版本勾选时，禁用修订版本 +1，并锁定右侧修订位输入
   if (major || minor) {
     patchWrap.classList.add('disabled');
     document.getElementById('autoPatch').checked = false;
+    patchInput.value = '0';
+    patchInput.disabled = true;
   } else {
     patchWrap.classList.remove('disabled');
+    patchInput.disabled = false;
+  }
+
+  if (major) {
+    document.getElementById('autoMinorWrap').classList.add('disabled');
+    document.getElementById('autoMinor').checked = false;
+    document.getElementById('verMinor').value = '0';
+  } else {
+    document.getElementById('autoMinorWrap').classList.remove('disabled');
+  }
+
+  document.getElementById('autoMajorWrap').classList.remove('disabled');
+  normalizeVersionInputs();
+}
+
+function updateVersionPreview() {
+  const text = `v${getCurrentVersionText()}`;
+  const summary = document.getElementById('versionSummary');
+  const status = document.getElementById('statusVersion');
+  if (summary) {
+    summary.innerHTML = `当前版本: <strong>${escapeHtml(text)}</strong>`;
+  }
+  if (status) {
+    status.textContent = text;
   }
 }
 
@@ -1236,6 +1431,7 @@ async function selectMainExe() {
     const result = await API.call('select_file', '可执行文件 (*.exe)');
     if (result?.path) {
       document.getElementById('mainExe').value = result.path;
+      renderMainExeOptions(result.path);
     }
   } catch (e) {
     showToast('选择文件失败', 'error');
@@ -1289,16 +1485,66 @@ async function selectSourceDir() {
 async function scanSourceDir(path) {
   try {
     const data = await API.call('scan_directory', path);
+    state.sourceScan = data;
+    document.getElementById('sourceDirInput').value = path;
     renderFileList(data);
     document.getElementById('sourceDirDisplay').textContent = path;
+    updateSourceSummary(data);
+    renderMainExeOptions(document.getElementById('mainExe').value);
 
     // 自动设置主程序
     if (data.exe_files?.length > 0 && !document.getElementById('mainExe').value) {
       document.getElementById('mainExe').value = path + '\\' + data.exe_files[0];
+      renderMainExeOptions(document.getElementById('mainExe').value);
     }
   } catch (e) {
     showToast('扫描目录失败', 'error');
   }
+}
+
+function renderMainExeOptions(selectedPath = '') {
+  const select = document.getElementById('mainExeSelect');
+  const hiddenInput = document.getElementById('mainExe');
+  if (!select || !hiddenInput) return;
+
+  const sourceDir = document.getElementById('sourceDirInput')?.value || state.sourceScan?.source_dir || '';
+  const exeFiles = state.sourceScan?.exe_files || [];
+  const options = ['<option value="">请选择主程序</option>'];
+  exeFiles.forEach(relPath => {
+    const fullPath = sourceDir ? sourceDir + '\\' + relPath : relPath;
+    const value = escapeHtml(fullPath);
+    const label = escapeHtml(relPath);
+    const selected = fullPath === selectedPath || relPath === selectedPath ? ' selected' : '';
+    options.push(`<option value="${value}"${selected}>${label}</option>`);
+  });
+
+  const current = String(selectedPath || hiddenInput.value || '').trim();
+  if (current && !exeFiles.some(relPath => current.endsWith(relPath))) {
+    options.push(`<option value="${escapeHtml(current)}" selected>${escapeHtml(current)}</option>`);
+  }
+
+  select.innerHTML = options.join('');
+  if (current) {
+    select.value = current;
+    hiddenInput.value = current;
+  }
+}
+
+function onMainExeSelectChange() {
+  const select = document.getElementById('mainExeSelect');
+  const input = document.getElementById('mainExe');
+  input.value = select.value || '';
+}
+
+function updateSourceSummary(data) {
+  const summary = document.getElementById('sourceSummary');
+  if (!summary) return;
+  if (!data?.file_count) {
+    summary.textContent = '未扫描到文件';
+    return;
+  }
+  const exeCount = data.exe_files?.length || 0;
+  summary.textContent = `已扫描 ${data.file_count} 个文件，${exeCount} 个可执行文件`;
 }
 
 function renderFileList(data) {
@@ -1378,12 +1624,19 @@ async function startBuild() {
   }
 
   try {
+    const oldVersion = getCurrentVersionText();
     const result = await API.call('build_installer');
     if (result.success) {
       addLogLine('构建完成！', 'success');
       document.getElementById('buildStatus').textContent = '构建完成';
       document.getElementById('buildProgress').style.width = '100%';
-      showToast('构建成功', 'success');
+      const incrementInfo = result.version_increment || {};
+      const newVersion = incrementInfo.new_version || oldVersion;
+      if (incrementInfo.changed) {
+        showToast(`构建成功：v${oldVersion} → v${newVersion}`, 'success');
+      } else {
+        showToast('构建成功', 'success');
+      }
 
       // 更新版本号显示
       if (state.currentProject) {
@@ -1458,6 +1711,20 @@ async function openOutputFolder() {
   }
 }
 
+async function loadAppInfo() {
+  try {
+    const info = await API.call('get_app_info');
+    state.appInfo = info || null;
+    const title = document.title;
+    if (info?.version) {
+      document.title = `${title} v${info.version}`;
+    }
+    applyDefaultInstallIcon();
+  } catch (e) {
+    console.error('加载应用信息失败:', e);
+  }
+}
+
 // === Utilities ===
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -1498,11 +1765,13 @@ document.addEventListener('keydown', e => {
 
 // === Init ===
 window.addEventListener('pywebviewready', () => {
+  loadAppInfo();
   loadRecentProjects();
 });
 
 setTimeout(() => {
   if (typeof pywebview !== 'undefined') {
+    loadAppInfo();
     loadRecentProjects();
   }
 }, 100);
